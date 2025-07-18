@@ -344,7 +344,7 @@ export default function QuestPage() {
 
         <ReferralPanel />
 
-        {/* <ReferralPanel /> */}
+       
       </main>
       <Footer />
     </div>

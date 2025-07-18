@@ -1,119 +1,141 @@
-import path from "path";
-import fs from "fs";
-import { NextResponse } from "next/server";
-
-// --- Types ---
-type Referral = {
-  code: string;            // e.g. "raven123"
-  owner: string;           // wallet address (always lowercase)
-  referred: string[];      // list of addresses that used this code
-};
-
-// --- File Location ---
-const DATA_PATH = path.join(
-  process.cwd(),
-  "src",
-  "app",
-  "data",
-  "referral-data.json"
-);
-
-// --- Helpers ---
-function ensureDataFile() {
-  const dir = path.dirname(DATA_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(DATA_PATH)) {
-    fs.writeFileSync(DATA_PATH, "[]", "utf8");
-  }
-}
-
-function readReferralData(): Referral[] {
-  ensureDataFile();
-  const raw = fs.readFileSync(DATA_PATH, "utf8").trim();
-  if (!raw) return [];
-  const parsed = JSON.parse(raw);
-  return Array.isArray(parsed) ? parsed : [];
-}
-
-function writeReferralData(data: Referral[]) {
-  ensureDataFile();
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf8");
-}
+import {NextResponse } from 'next/server'
+import supabase from "@/lib/supabase"
 
 // --- GET ---
 export async function GET(req: Request) {
-  const data = readReferralData();
-  const { searchParams } = new URL(req.url);
-  const code = searchParams.get("code");
-  const address = searchParams.get("address");
+  const { searchParams } = new URL(req.url)
+  const code = searchParams.get("code")
+  const address = searchParams.get("address")?.toLowerCase()
 
   if (code) {
-    const item = data.find((r) => r.code === code);
-    return NextResponse.json(item || null);
+    // find by code
+    const { data, error } = await supabase
+      .from('referral_data')
+      .select('*')
+      .eq('code', code)
+      .single()
+
+    if (error) {
+      console.error(error)
+      return NextResponse.json(null)
+    }
+
+    return NextResponse.json(data || null)
   }
 
   if (address) {
-    // find record where owner matches this address
-    const item = data.find((r) => r.owner === address.toLowerCase());
-    if (item) {
-      return NextResponse.json({
-        refCode: item.code,
-        referrer: null,            // or set actual referrer if you track it
-        invites: item.referred.length,
-      });
-    } else {
-      return NextResponse.json(null);
+    // find by owner address
+    const { data, error } = await supabase
+      .from('referral_data')
+      .select('*')
+      .eq('owner', address)
+      .single()
+
+    if (error || !data) {
+      console.error(error)
+      return NextResponse.json(null)
     }
+
+    return NextResponse.json({
+      refCode: data.code,
+      referrer: null, // optional to track actual referrer
+      invites: data.referred?.length || 0
+    })
   }
 
-  return NextResponse.json(data);
-}
+  // get all
+  const { data: allData, error: allErr } = await supabase
+    .from('referral_data')
+    .select('*')
 
+  if (allErr) {
+    console.error(allErr)
+    return NextResponse.json([])
+  }
+
+  return NextResponse.json(allData)
+}
 
 // --- POST ---
 // body: { action, code?, owner?, referred? }
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { action, code, owner, referred } = body;
-    const data = readReferralData();
+    const body = await req.json()
+    const { action, code, owner, referred } = body
 
     if (action === "create") {
       if (!code || !owner) {
-        return NextResponse.json({ error: "Missing code or owner" }, { status: 400 });
+        return NextResponse.json({ error: "Missing code or owner" }, { status: 400 })
       }
-      if (data.find((r) => r.code === code)) {
-        return NextResponse.json({ error: "Code already exists" }, { status: 409 });
+
+      // check if exists
+      const { data: exists, error: findErr } = await supabase
+        .from('referral_data')
+        .select('code')
+        .eq('code', code)
+        .single()
+
+      if (exists) {
+        return NextResponse.json({ error: "Code already exists" }, { status: 409 })
       }
-      const newReferral: Referral = {
-        code,
-        owner: owner.toLowerCase(),
-        referred: [],
-      };
-      data.push(newReferral);
-      writeReferralData(data);
-      return NextResponse.json({ success: true, referral: newReferral });
+
+      // insert
+      const { data, error: insertErr } = await supabase
+        .from('referral_data')
+        .insert([{ 
+          code, 
+          owner: owner.toLowerCase(), 
+          referred: [] 
+        }])
+        .select()
+        .single()
+
+      if (insertErr) {
+        console.error(insertErr)
+        return NextResponse.json({ error: "Failed to create" }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, referral: data })
     }
 
     if (action === "addReferral") {
       if (!code || !referred) {
-        return NextResponse.json({ error: "Missing code or referred" }, { status: 400 });
+        return NextResponse.json({ error: "Missing code or referred" }, { status: 400 })
       }
-      const target = data.find((r) => r.code === code);
-      if (!target) {
-        return NextResponse.json({ error: "Code not found" }, { status: 404 });
+
+      const lowerReferred = referred.toLowerCase()
+
+      // fetch target record
+      const { data: target, error: getErr } = await supabase
+        .from('referral_data')
+        .select('*')
+        .eq('code', code)
+        .single()
+
+      if (getErr || !target) {
+        return NextResponse.json({ error: "Code not found" }, { status: 404 })
       }
-      const lowerReferred = referred.toLowerCase();
+
       if (!target.referred.includes(lowerReferred)) {
-        target.referred.push(lowerReferred);
-        writeReferralData(data);
+        target.referred.push(lowerReferred)
+
+        const { error: updateErr } = await supabase
+          .from('referral_data')
+          .update({ referred: target.referred })
+          .eq('code', code)
+
+        if (updateErr) {
+          console.error(updateErr)
+          return NextResponse.json({ error: "Failed to update" }, { status: 500 })
+        }
       }
-      return NextResponse.json({ success: true, referral: target });
+
+      return NextResponse.json({ success: true, referral: target })
     }
 
-    return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+    return NextResponse.json({ error: "Unknown action" }, { status: 400 })
   } catch (err) {
-    console.error("POST /api/user/referral error:", err);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    console.error("POST /api/referral error:", err)
+    return NextResponse.json({ error: "Failed" }, { status: 500 })
   }
 }

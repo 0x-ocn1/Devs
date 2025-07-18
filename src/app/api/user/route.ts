@@ -1,120 +1,120 @@
 // src/app/api/user/route.ts
-import path from "path";
-import fs from "fs";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+import supabase from "@/lib/supabase"
 
-// Type
-type User = {
-  address: string;
-  points: number;
-  boosts: number;
-  lastCheckIn: number | null;
-  lastBoost: number | null;
-};
-
-// JSON data file path:
-const DATA_PATH = path.join(process.cwd(), "src", "app", "data", "user-data.json");
-
-// Ensure file and directory exist
-function ensureDataFile() {
-  const dir = path.dirname(DATA_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(DATA_PATH)) fs.writeFileSync(DATA_PATH, "[]", "utf8");
-}
-
-// Read data
-function readUserData(): User[] {
-  ensureDataFile();
-  const raw = fs.readFileSync(DATA_PATH, "utf8");
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error("Failed to parse JSON:", e);
-    return [];
-  }
-}
-
-// Write data
-function writeUserData(data: User[]) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf8");
-}
 
 // Build leaderboard
-function buildLeaderboard(users: User[]) {
+function buildLeaderboard(users: any[]) {
   return [...users]
     .sort((a, b) => b.points - a.points)
     .map((u, i) => ({
       address: u.address,
       points: u.points,
       boosts: u.boosts,
-      lastCheckIn: u.lastCheckIn,
+      lastCheckIn: u.last_checkin,
       rank: i + 1,
-    }));
+    }))
 }
 
 // GET /api/user
 // GET /api/user?address=0x...
 export async function GET(req: Request) {
-  const users = readUserData();
-  const leaderboard = buildLeaderboard(users);
+  const { searchParams } = new URL(req.url)
+  const addr = searchParams.get("address")?.toLowerCase()
 
-  const { searchParams } = new URL(req.url);
-  const addr = searchParams.get("address")?.toLowerCase();
-
-  if (addr) {
-    const current = leaderboard.find((u) => u.address === addr) || null;
-    return NextResponse.json({ leaderboard, current });
+  // fetch all users
+  const { data: users, error } = await supabase.from('user_data').select('*')
+  if (error) {
+    console.error("Supabase fetch error:", error)
+    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 })
   }
 
-  return NextResponse.json(leaderboard);
+  const leaderboard = buildLeaderboard(users || [])
+
+  if (addr) {
+    const current = leaderboard.find(u => u.address === addr) || null
+    return NextResponse.json({ leaderboard, current })
+  }
+
+  return NextResponse.json(leaderboard)
 }
 
 // POST: { address, action: "checkin" | "boost" | "ensure" }
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { address, action } = body;
+    const body = await req.json()
+    const { address, action } = body
     if (!address || typeof address !== "string" || !["checkin", "boost", "ensure"].includes(action)) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid data" }, { status: 400 })
     }
 
-    const normalized = address.toLowerCase();
-    const users = readUserData();
+    const normalized = address.toLowerCase()
+    const now = Date.now()
 
-    let user = users.find((u) => u.address === normalized);
+    // fetch user
+    const { data: user, error } = await supabase
+      .from('user_data')
+      .select('*')
+      .eq('address', normalized)
+      .single()
+
+    let newUser = user
+
     if (!user) {
-      user = { address: normalized, points: 0, boosts: 0, lastCheckIn: null, lastBoost: null };
-      users.push(user);
+      // create user
+      const { data, error: insertErr } = await supabase
+        .from('user_data')
+        .insert([{ address: normalized, points: 0, boosts: 0, last_checkin: null }])
+        .select()
+        .single()
+      if (insertErr) {
+        console.error(insertErr)
+        return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
+      }
+      newUser = data
     }
-
-    const now = Date.now();
 
     if (action === "checkin") {
-      const cooldown = 6 * 60 * 60 * 1000; // 6 hours
-      if (user.lastCheckIn && now - user.lastCheckIn < cooldown) {
-        return NextResponse.json({ error: "Check-in cooldown active" }, { status: 429 });
+      const cooldown = 6 * 60 * 60 * 1000 // 6 hours
+      if (newUser.last_checkin && now - newUser.last_checkin < cooldown) {
+        return NextResponse.json({ error: "Check-in cooldown active" }, { status: 429 })
       }
-      user.points += 10;
-      user.lastCheckIn = now;
+      const updated = await supabase
+        .from('user_data')
+        .update({ 
+          points: newUser.points + 10, 
+          last_checkin: now 
+        })
+        .eq('address', normalized)
+      if (updated.error) throw updated.error
     }
 
     if (action === "boost") {
-      user.points += 200;
-      user.boosts += 1;
-      user.lastBoost = now;
+      const updated = await supabase
+        .from('user_data')
+        .update({ 
+          points: newUser.points + 200, 
+          boosts: newUser.boosts + 1 
+        })
+        .eq('address', normalized)
+      if (updated.error) throw updated.error
     }
 
-    // ensure = do nothing, just makes sure user exists
+    // ensure: do nothing
 
-    writeUserData(users);
+    // fetch all users again to build leaderboard
+    const { data: allUsers, error: fetchErr } = await supabase.from('user_data').select('*')
+    if (fetchErr) {
+      console.error(fetchErr)
+      return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 })
+    }
 
-    const leaderboard = buildLeaderboard(users);
-    const current = leaderboard.find((u) => u.address === normalized) || null;
+    const leaderboard = buildLeaderboard(allUsers || [])
+    const current = leaderboard.find(u => u.address === normalized) || null
 
-    return NextResponse.json({ success: true, user: current, leaderboard });
+    return NextResponse.json({ success: true, user: current, leaderboard })
   } catch (err) {
-    console.error("POST /api/user error:", err);
-    return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    console.error("POST /api/user error:", err)
+    return NextResponse.json({ error: "Failed to update user" }, { status: 500 })
   }
 }
