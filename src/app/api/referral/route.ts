@@ -1,5 +1,12 @@
-import {NextResponse } from 'next/server'
+import { NextResponse } from "next/server"
 import supabase from "@/lib/supabase"
+
+// Define type for referral_data table
+type ReferralData = {
+  code: string
+  owner: string
+  referred: string[]
+}
 
 // --- GET ---
 export async function GET(req: Request) {
@@ -7,57 +14,62 @@ export async function GET(req: Request) {
   const code = searchParams.get("code")
   const address = searchParams.get("address")?.toLowerCase()
 
-  if (code) {
-    // find by code
-    const { data, error } = await supabase
-      .from('referral_data')
-      .select('*')
-      .eq('code', code)
-      .single()
+  try {
+    if (code) {
+      // Find by code
+      const { data, error } = await supabase
+        .from("referral_data")
+        .select("*")
+        .eq("code", code)
+        .single<ReferralData>()
 
-    if (error) {
-      console.error(error)
-      return NextResponse.json(null)
+      if (error) {
+        console.error(error)
+        return NextResponse.json(null)
+      }
+
+      return NextResponse.json(data || null)
     }
 
-    return NextResponse.json(data || null)
-  }
+    if (address) {
+      // Find by owner address
+      const { data, error } = await supabase
+        .from("referral_data")
+        .select("*")
+        .eq("owner", address)
+        .single<ReferralData>()
 
-  if (address) {
-    // find by owner address
-    const { data, error } = await supabase
-      .from('referral_data')
-      .select('*')
-      .eq('owner', address)
-      .single()
+      if (error || !data) {
+        console.error(error)
+        return NextResponse.json(null)
+      }
 
-    if (error || !data) {
-      console.error(error)
-      return NextResponse.json(null)
+      return NextResponse.json({
+        refCode: data.code,
+        referrer: null, // optional: to track actual referrer
+        invites: data.referred?.length || 0,
+      })
     }
 
-    return NextResponse.json({
-      refCode: data.code,
-      referrer: null, // optional to track actual referrer
-      invites: data.referred?.length || 0
-    })
+    // Get all referral codes
+    const { data: allData, error: allErr } = await supabase
+      .from("referral_data")
+      .select("*")
+
+    if (allErr) {
+      console.error(allErr)
+      return NextResponse.json([])
+    }
+
+    return NextResponse.json(allData)
+  } catch (err) {
+    console.error("GET /api/referral error:", err)
+    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 })
   }
-
-  // get all
-  const { data: allData, error: allErr } = await supabase
-    .from('referral_data')
-    .select('*')
-
-  if (allErr) {
-    console.error(allErr)
-    return NextResponse.json([])
-  }
-
-  return NextResponse.json(allData)
 }
 
 // --- POST ---
-// body: { action, code?, owner?, referred? }
+// Body: { action: "create" | "addReferral", code?: string, owner?: string, referred?: string }
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -68,31 +80,27 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Missing code or owner" }, { status: 400 })
       }
 
-      // check if exists
-      const { data: exists, error: findErr } = await supabase
-        .from('referral_data')
-        .select('code')
-        .eq('code', code)
-        .single()
+      // Check if code already exists
+      const { data: exists } = await supabase
+        .from("referral_data")
+        .select("code")
+        .eq("code", code)
+        .single<ReferralData>()
 
       if (exists) {
         return NextResponse.json({ error: "Code already exists" }, { status: 409 })
       }
 
-      // insert
+      // Insert new referral
       const { data, error: insertErr } = await supabase
-        .from('referral_data')
-        .insert([{ 
-          code, 
-          owner: owner.toLowerCase(), 
-          referred: [] 
-        }])
+        .from("referral_data")
+        .insert([{ code, owner: owner.toLowerCase(), referred: [] }])
         .select()
-        .single()
+        .single<ReferralData>()
 
       if (insertErr) {
         console.error(insertErr)
-        return NextResponse.json({ error: "Failed to create" }, { status: 500 })
+        return NextResponse.json({ error: "Failed to create referral" }, { status: 500 })
       }
 
       return NextResponse.json({ success: true, referral: data })
@@ -105,29 +113,33 @@ export async function POST(req: Request) {
 
       const lowerReferred = referred.toLowerCase()
 
-      // fetch target record
+      // Fetch target referral
       const { data: target, error: getErr } = await supabase
-        .from('referral_data')
-        .select('*')
-        .eq('code', code)
-        .single()
+        .from("referral_data")
+        .select("*")
+        .eq("code", code)
+        .single<ReferralData>()
 
       if (getErr || !target) {
-        return NextResponse.json({ error: "Code not found" }, { status: 404 })
+        console.error(getErr)
+        return NextResponse.json({ error: "Referral code not found" }, { status: 404 })
       }
 
+      // Update referred list if new
       if (!target.referred.includes(lowerReferred)) {
-        target.referred.push(lowerReferred)
+        const updatedReferred = [...target.referred, lowerReferred]
 
         const { error: updateErr } = await supabase
-          .from('referral_data')
-          .update({ referred: target.referred })
-          .eq('code', code)
+          .from("referral_data")
+          .update({ referred: updatedReferred })
+          .eq("code", code)
 
         if (updateErr) {
           console.error(updateErr)
-          return NextResponse.json({ error: "Failed to update" }, { status: 500 })
+          return NextResponse.json({ error: "Failed to update referral" }, { status: 500 })
         }
+
+        target.referred = updatedReferred
       }
 
       return NextResponse.json({ success: true, referral: target })

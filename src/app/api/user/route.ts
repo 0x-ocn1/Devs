@@ -1,6 +1,8 @@
 // src/app/api/user/route.ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 import supabase from "@/lib/supabase"
+
+console.log(NextResponse);
 
 
 // Build leaderboard
