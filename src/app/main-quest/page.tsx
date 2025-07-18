@@ -85,48 +85,42 @@ export default function QuestPage() {
   }, [lastCheckIn]);
 
   async function handleTransaction(type: "checkin" | "boost") {
-    try {
-      if (!window.ethereum) throw new Error("Wallet not detected");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-      const value = type === "checkin" ? ethers.parseEther("0.00003") : ethers.parseEther("0.002");
+  try {
+    if (!window.ethereum) throw new Error("Wallet not detected");
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    const value = type === "checkin" ? ethers.parseEther("0.00003") : ethers.parseEther("0.002");
 
-      setLoading(true);
-      setMessage(type === "checkin" ? "Checking in..." : "Boosting...");
-      const tx = await contract[type === "checkin" ? "checkIn" : "boost"]({ value });
-      await tx.wait();
+    setLoading(true);
+    setMessage(type === "checkin" ? "Checking in..." : "Boosting...");
 
-      setRecentTxs((prev) => [tx.hash, ...prev.slice(0, 4)]);
+    // Send tx
+    const tx = await contract[type === "checkin" ? "checkIn" : "boost"]({ value });
+    await tx.wait();
 
-      const res = await fetch('/api/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address, action: type })
-      });
-      const data = await res.json();
+    setRecentTxs((prev) => [tx.hash, ...prev.slice(0, 4)]);
 
-      if (data && data.leaderboard) {
-        setLeaderboard(data.leaderboard);
-        const current = data.leaderboard.find((u: LeaderboardUser) => u.address === address?.toLowerCase());
-        if (current) {
-          setPoints(current.points);
-          setRank(current.rank);
-          setBoostCount(current.boosts || 0);
-          if (current.lastCheckIn) setLastCheckIn(current.lastCheckIn);
-        }
-      }
+    // Update backend
+    await fetch('/api/user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address, action: type })
+    });
 
-      setMessage(type === "checkin" ? "✅ Check-in successful!" : "⚡ Boost successful!");
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Transaction failed.");
-    } finally {
-      setLoading(false);
-      setTimeout(() => setMessage(""), 3000);
-    }
+    // Fetch fresh data to update points, cooldown, etc.
+    await fetchLeaderboard();
+
+    setMessage(type === "checkin" ? "✅ Check-in successful!" : "⚡ Boost successful!");
+  } catch (err) {
+    console.error(err);
+    setMessage("❌ Transaction failed.");
+  } finally {
+    setLoading(false);
+    setTimeout(() => setMessage(""), 3000);
   }
-
+}
+  
  const fetchLeaderboard = useCallback(async () => {
   const res = await fetch("/api/user");
   const data = await res.json();
