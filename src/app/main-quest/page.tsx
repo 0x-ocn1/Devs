@@ -8,6 +8,9 @@ import { ethers } from "ethers";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import ReferralPanel from "./ReferralPanel";
+import SocialQuestSection from "./SocialQuestSection";
+
+
 
 const CONTRACT_ADDRESS = "0xA597a1Dc00E722627bA796dCFF1130d33A35a1Eb";
 const CONTRACT_ABI = [
@@ -41,7 +44,7 @@ export default function QuestPage() {
   const [lastCheckIn, setLastCheckIn] = useState<number | null>(null);
   const [recentTxs, setRecentTxs] = useState<string[]>([]);
   const [cooldown, setCooldown] = useState<number | null>(null);
-
+ 
     useEffect(() => {
   setMounted(true);
 }, []);
@@ -244,6 +247,9 @@ export default function QuestPage() {
     {message}
   </div>
 )}
+
+<SocialQuestSection address={address || ""} />
+
 
             <AnimatePresence>
               {showProfile && (
