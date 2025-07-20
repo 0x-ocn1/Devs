@@ -1,10 +1,8 @@
-"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
-import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
-
-export default function Navbar() {
+export default function Navbar() { 
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -26,7 +24,7 @@ export default function Navbar() {
         </button>
 
         <nav className="hidden md:flex gap-6 text-sm font-medium">
-          <Link href="/home" className="hover:text-gray-300">Home</Link>
+          <Link href="/" className="hover:text-gray-300">Home</Link>
           <Link href="/main-quest" className="hover:text-gray-300">Main Quest</Link>
           <a href="https://discord.gg/ZcfGd3DJjd" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Discord</a>
           <a href="https://twitter.com/raven_rush1" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Twitter</a>
@@ -36,7 +34,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden px-4 pb-4 bg-black text-sm space-y-2">
-          <Link href="/home" onClick={toggleMenu} className="block">Home</Link>
+          <Link href="/" onClick={toggleMenu} className="block">Home</Link>
           <Link href="/main-quest" onClick={toggleMenu} className="block">Main Quest</Link>
           <a href="https://discord.gg/ZcfGd3DJjd" target="_blank" rel="noopener noreferrer" onClick={toggleMenu} className="block">Discord</a>
           <a href="https://twitter.com/raven_rush1" target="_blank" rel="noopener noreferrer" onClick={toggleMenu} className="block">Twitter</a>
