@@ -248,7 +248,7 @@ export default function QuestPage() {
   </div>
 )}
 
-<SocialQuestSection address={address || ""} />
+<SocialQuestSection address={address || ""} refreshLeaderboard={fetchLeaderboard} />
 
 
             <AnimatePresence>

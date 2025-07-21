@@ -75,30 +75,36 @@ export const POST = async (req: Request) => {
 
     // 👶 If user doesn't exist, create
     if (!user) {
-      console.log("👶 New user detected, creating:", normalized);
-      const { error: insertErr } = await supabase
-        .from("user_data")
-        .insert([{ address: normalized, points: 0, boosts: 0, last_checkin: null, completed_quests: [] }]);
+  console.log("👶 New user detected, creating:", normalized);
+  const { error: insertErr } = await supabase
+    .from("user_data")
+    .insert([{ address: normalized, points: 0, boosts: 0, last_checkin: null, completed_quests: [] }]);
 
-      if (insertErr) {
-        console.error("Insert error:", insertErr);
-        return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
-      }
+  if (insertErr) {
+    console.error("Insert error:", insertErr);
+    return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+  }
 
-      // 🐛 Important: fetch again after insert
-      const { data: refetchedUser, error: refetchErr } = await supabase
-        .from("user_data")
-        .select("*")
-        .eq("address", normalized)
-        .single();
+  // 🐛 Refetch to continue with up-to-date data
+  const { data: refetchedUser, error: refetchErr } = await supabase
+    .from("user_data")
+    .select("*")
+    .eq("address", normalized)
+    .single();
 
-      if (refetchErr || !refetchedUser) {
-        console.error("Refetch error after insert:", refetchErr);
-        return NextResponse.json({ error: "Failed to refetch user" }, { status: 500 });
-      }
+  if (refetchErr || !refetchedUser) {
+    console.error("Refetch error after insert:", refetchErr);
+    return NextResponse.json({ error: "Failed to refetch user" }, { status: 500 });
+  }
 
-      user = refetchedUser;
-    }
+  user = refetchedUser;
+
+  // ✅ Stop here if the only intent was to ensure user exists
+  if (action === "ensure") {
+    return NextResponse.json({ success: true, message: "User created" });
+  }
+}
+
 
     const newUser = user as User;
 

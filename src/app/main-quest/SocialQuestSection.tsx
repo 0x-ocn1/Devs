@@ -9,10 +9,11 @@ type Task = {
   color: string;
   icon: string;
 };
-
 type Props = {
   address: string;
+  refreshLeaderboard: () => void;
 };
+
 
 const tasks: Task[] = [
   { id: "follow_twitter", label: "Follow on Twitter", url: "https://twitter.com/yourprofile", color: "bg-blue-600", icon: "🐦" },
@@ -49,32 +50,34 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
   }, [address]);
 
   const handleClick = async (task: Task) => {
-    if (loadingTaskId || clickedTasks.includes(task.id)) return;
-    window.open(task.url, "_blank");
-    setLoadingTaskId(task.id);
+  if (loadingTaskId || clickedTasks.includes(task.id)) return;
+  window.open(task.url, "_blank");
+  setLoadingTaskId(task.id);
 
-    try {
-      const res = await fetch("/api/user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, action: "social_quest", taskId: task.id })
-      });
-      const data = await res.json();
+  try {
+    const res = await fetch("/api/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address, action: "social_quest", taskId: task.id })
+    });
+    const data = await res.json();
 
-      if (res.ok && data.success) {
-        setClickedTasks(prev => [...prev, task.id]);
-        setMessage(`✅ "${task.label}" completed! +2 points`);
-      } else {
-        setMessage("❌ Failed to complete task");
-      }
-    } catch (e) {
-      console.error(e);
-      setMessage("❌ Server error");
-    } finally {
-      setLoadingTaskId(null);
-      setTimeout(() => setMessage(""), 3000);
+    if (res.ok && data.success) {
+      setClickedTasks(prev => [...prev, task.id]);
+      setMessage(`✅ "${task.label}" completed! +2 points`);
+      refreshLeaderboard(); // 👈 this triggers UI update in main quest page
+    } else {
+      setMessage("❌ Failed to complete task");
     }
-  };
+  } catch (e) {
+    console.error(e);
+    setMessage("❌ Server error");
+  } finally {
+    setLoadingTaskId(null);
+    setTimeout(() => setMessage(""), 3000);
+  }
+};
+
 
   return (
     <div className="w-full max-w-5xl bg-black/70 border border-purple-800 rounded-lg p-6 mt-6">
@@ -103,3 +106,7 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
 };
 
 export default SocialQuestSection;
+function refreshLeaderboard() {
+  throw new Error("Function not implemented.");
+}
+
