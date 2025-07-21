@@ -31,6 +31,7 @@ function buildLeaderboard(users: User[]): LeaderboardUser[] {
 }
 
 
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const addr = searchParams.get("address")?.toLowerCase() ?? null;
