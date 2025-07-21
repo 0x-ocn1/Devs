@@ -36,7 +36,7 @@ export default function QuestPage() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
   const [message, setMessage] = useState("");
-  const [points, setPoints] = useState(0);
+  const [points, setPoints] = useState<number | null>(null);
   const [rank, setRank] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -165,15 +165,20 @@ export default function QuestPage() {
 }, [address]);
 
 
-  useEffect(() => {
-    if (isConnected && address) {
-      fetch('/api/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address, action: 'ensure' }),
-      }).then(() => fetchLeaderboard());
-    }
-  }, [isConnected, address, fetchLeaderboard]);
+   useEffect(() => {
+  if (address) {
+    // First ensure user exists in DB
+    fetch('/api/user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address, action: 'ensure' }),
+    }).then(() => {
+      // Then fetch user points and leaderboard
+      fetchLeaderboard();
+    });
+  }
+}, [address, fetchLeaderboard]);
+
 
   return (
     <div
@@ -215,7 +220,10 @@ export default function QuestPage() {
       <div className="flex flex-col md:flex-row gap-6 justify-between items-center w-full max-w-5xl">
   <div className="text-center bg-black/60 border border-purple-800 px-6 py-4 rounded-lg shadow-md">
     <p className="text-sm text-purple-300">⭐ Total Points</p>
-    <p className="text-2xl font-bold">{points}</p>
+    <p className="text-2xl font-bold">
+  {points !== null ? points : 'Loading...'}
+</p>
+
     {rank !== null && (
       <p className="text-sm font-semibold text-yellow-300 mt-1">🎖️ Rank: #{rank}</p>
     )}
