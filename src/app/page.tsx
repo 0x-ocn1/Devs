@@ -239,8 +239,37 @@ export default function HomePage() {
       ))}
     </div>
   </div>
-</motion.section>
+</motion.section> 
 
+
+{/* Powered by Logos Section */}
+<motion.div
+  className="flex items-center gap-4 mt-8 mb-4 justify-center md:justify-start"
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+>
+  <span className="opacity-80 text-sm">Powered by</span>
+
+  {[
+    "https://i.postimg.cc/J09Gb4WK/Arbitrum.png",
+    "https://i.postimg.cc/G9wm47k5/polygon.png",
+    "https://i.postimg.cc/tghtJwWL/solana.png",
+    "https://i.postimg.cc/yNd34Gnm/Bnb-chain.png"
+  ].map((src, idx) => (
+    <motion.img
+      key={idx}
+      src={src}
+      alt={`partner-${idx}`}
+      className="w-6 h-6 md:w-7 md:h-7 object-contain opacity-80 hover:opacity-100 transition duration-200"
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.2 + idx * 0.15, duration: 0.4 }}
+    />
+  ))}
+</motion.div>
+
+     
       </main>
 
       <Footer />
