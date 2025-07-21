@@ -19,7 +19,7 @@ interface LeaderboardUser {
 
 function buildLeaderboard(users: User[]): LeaderboardUser[] {
   return [...users]
-    .filter((u) => u.points >= 50) // ✅ Only include users with 50+ points
+    .filter((u) => u.points >= 50)
     .sort((a, b) => b.points - a.points)
     .map((u, i) => ({
       address: u.address,
@@ -29,8 +29,6 @@ function buildLeaderboard(users: User[]): LeaderboardUser[] {
       rank: i + 1,
     }));
 }
-
-
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -62,8 +60,9 @@ export async function POST(req: Request) {
     }
 
     const normalized = address.toLowerCase();
+    console.log(`[INFO] Action received: ${action} from address: ${normalized}`);
 
-    // Fetch or create user
+    // Fetch existing user
     const { data: user, error: fetchErr } = await supabase
       .from("user_data")
       .select("*")
@@ -72,95 +71,113 @@ export async function POST(req: Request) {
 
     let newUser = user as User | null;
 
-    if (!newUser) {
-      const { data, error: insertErr } = await supabase
+    // ✅ Handle "ensure" action (create user if not exists)
+    if (action === "ensure") {
+      if (!newUser) {
+        const { data, error: insertErr } = await supabase
+          .from("user_data")
+          .insert([{ address: normalized, points: 0, boosts: 0, last_checkin: null, completed_quests: [] }])
+          .select()
+          .single();
+
+        if (insertErr || !data) {
+          console.error("[ERROR] Failed to create user on ensure:", insertErr);
+          return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+        }
+
+        newUser = data as User;
+        console.log(`[INFO] New user created: ${normalized}`);
+      } else {
+        console.log(`[INFO] User already exists: ${normalized}`);
+      }
+
+      return NextResponse.json({ success: true, message: "User ensured" });
+    }
+
+    // ✅ SOCIAL QUEST: +2 points for each unique task
+    if (action === "social_quest" && taskId && typeof taskId === "string") {
+      console.log(`[INFO] Social quest: ${taskId} by ${normalized}`);
+
+      let completed: string[] = [];
+
+      if (Array.isArray(newUser?.completed_quests)) {
+        completed = newUser.completed_quests;
+      } else if (typeof newUser?.completed_quests === "string") {
+        try {
+          const parsed = JSON.parse(newUser.completed_quests);
+          if (Array.isArray(parsed)) completed = parsed;
+        } catch (e) {
+          console.warn("Failed to parse completed_quests:", e);
+        }
+      }
+
+      if (completed.includes(taskId)) {
+        return NextResponse.json({ success: false, message: "Task already completed" });
+      }
+
+      completed.push(taskId);
+
+      const { error: updateErr } = await supabase
         .from("user_data")
-        .insert([{ address: normalized, points: 0, boosts: 0, last_checkin: null, completed_quests: [] }])
-        .select()
-        .single();
-      if (insertErr || !data) {
-        console.error(insertErr);
-        return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+        .update({
+          points: newUser!.points + 2,
+          completed_quests: completed,
+        })
+        .eq("address", normalized);
+
+      if (updateErr) {
+        console.error("Supabase update error:", updateErr);
+        return NextResponse.json({ success: false, message: "Database update failed" });
       }
-      newUser = data as User;
+
+      return NextResponse.json({
+        success: true,
+        newPoints: newUser!.points + 2,
+        clickedTasks: completed,
+      });
     }
 
-    // ✅ SOCIAL QUEST: add +2 points every time user clicks, keep task disabled until reset
-if (action === "social_quest" && taskId && typeof taskId === "string") {
-  console.log("Received taskId:", taskId);
-
-  // Ensure completed_quests is a real array
-  let completed: string[] = [];
-
-  if (Array.isArray(newUser.completed_quests)) {
-    completed = newUser.completed_quests;
-  } else if (typeof newUser.completed_quests === "string") {
-    try {
-      const parsed = JSON.parse(newUser.completed_quests);
-      if (Array.isArray(parsed)) {
-        completed = parsed;
-      }
-    } catch (e) {
-      console.warn("Failed to parse completed_quests:", e);
-    }
-  }
-
-  if (completed.includes(taskId)) {
-    return NextResponse.json({ success: false, message: "Task already completed" });
-  }
-
-  completed.push(taskId);
-
-  const { error: updateErr } = await supabase
-    .from("user_data")
-    .update({
-      points: newUser.points + 2,
-      completed_quests: completed,
-    })
-    .eq("address", normalized);
-
-  if (updateErr) {
-    console.error("Supabase update error:", updateErr);
-    return NextResponse.json({ success: false, message: "Database update failed" });
-  }
-
-  return NextResponse.json({ success: true, newPoints: newUser.points + 2, clickedTasks: completed });
-}
-
-
-
-
-
-    // ✅ GET which tasks user already completed
+    // ✅ GET completed social tasks
     if (action === "get_social_state") {
-      const completed = newUser.completed_quests || [];
+      const completed = newUser?.completed_quests || [];
       return NextResponse.json({ clickedTasks: completed });
     }
 
-    // ✅ Keep other actions unchanged (checkin, boost)
+    // ✅ CHECK-IN action
     if (action === "checkin") {
       const now = Date.now();
       const cooldown = 6 * 60 * 60 * 1000;
-      if (newUser.last_checkin && now - newUser.last_checkin < cooldown) {
+
+      if (newUser?.last_checkin && now - newUser.last_checkin < cooldown) {
+        console.log(`[WARN] Check-in cooldown for ${normalized}`);
         return NextResponse.json({ error: "Check-in cooldown active" }, { status: 429 });
       }
+
       await supabase
         .from("user_data")
-        .update({ points: newUser.points + 10, last_checkin: now })
+        .update({ points: newUser!.points + 10, last_checkin: now })
         .eq("address", normalized);
+
+      console.log(`[INFO] User ${normalized} checked in and earned 10 points`);
     }
 
+    // ✅ BOOST action
     if (action === "boost") {
       await supabase
         .from("user_data")
-        .update({ points: newUser.points + 200, boosts: newUser.boosts + 1 })
+        .update({
+          points: newUser!.points + 200,
+          boosts: newUser!.boosts + 1,
+        })
         .eq("address", normalized);
+
+      console.log(`[INFO] User ${normalized} boosted and earned 200 points`);
     }
 
-    // ✅ Rebuild leaderboard & return
+    // ✅ Re-fetch and build leaderboard
     const { data: allUsers, error: allFetchErr } = await supabase.from("user_data").select("*");
     if (allFetchErr || !allUsers) {
-      console.error(allFetchErr);
+      console.error("[ERROR] Failed to fetch all users:", allFetchErr);
       return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
     }
 
@@ -170,7 +187,7 @@ if (action === "social_quest" && taskId && typeof taskId === "string") {
     return NextResponse.json({ success: true, user: current, leaderboard });
 
   } catch (err) {
-    console.error("POST /api/user error:", err);
+    console.error("[FATAL] POST /api/user error:", err);
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }
 }
