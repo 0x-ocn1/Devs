@@ -94,8 +94,6 @@ export default function QuestPage() {
   }
 
   try {
-    console.log("🏁 Starting transaction:", type, "for", address);
-
     if (!window.ethereum) throw new Error("Wallet not detected");
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
@@ -107,29 +105,20 @@ export default function QuestPage() {
     setMessage(type === "checkin" ? "🧭 Checking in..." : "⚡ Boosting...");
 
     const tx = await contract[type === "checkin" ? "checkIn" : "boost"]({ value });
-    console.log("🔃 Transaction sent:", tx.hash);
-
     await tx.wait();
-    console.log("✅ Transaction confirmed:", tx.hash);
-
-    setRecentTxs((prev) => [tx.hash, ...prev.slice(0, 4)]);
 
     const res = await fetch('/api/user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address, action: type }),
     });
-
     const data = await res.json();
-    console.log("📦 Backend response:", data);
-
-    if (!res.ok) throw new Error(data.error || "Backend error");
+    if (!res.ok || !data.success) throw new Error(data?.message || "Backend error");
 
     await fetchLeaderboard();
-
     setMessage(type === "checkin" ? "✅ Check-in successful!" : "✅ Boost successful!");
   } catch (err: any) {
-    console.error("❌ handleTransaction error:", err);
+    console.error("Transaction error:", err);
     setMessage(err.message || "❌ Transaction failed.");
   } finally {
     setLoading(false);
@@ -138,7 +127,7 @@ export default function QuestPage() {
 }
 
 
-  
+
  const fetchLeaderboard = useCallback(async () => {
   const res = await fetch("/api/user");
   const data = await res.json();

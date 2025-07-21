@@ -78,7 +78,10 @@ export const POST = async (req: Request) => {
   console.log("👶 New user detected, creating:", normalized);
   const { error: insertErr } = await supabase
     .from("user_data")
-    .insert([{ address: normalized, points: 0, boosts: 0, last_checkin: null, completed_quests: [] }]);
+    .insert([{ address: normalized, points: 0, boosts: 0, last_checkin: null, completed_quests: JSON.stringify([]) }]);
+
+    
+    
 
   if (insertErr) {
     console.error("Insert error:", insertErr);
@@ -135,10 +138,9 @@ export const POST = async (req: Request) => {
         .from("user_data")
         .update({
           points: newUser.points + 2,
-          completed_quests: completed,
-        })
-        .eq("address", normalized);
-
+          completed_quests: JSON.stringify(completed), // ✅ always save as JSON string
+  })
+  .eq("address", normalized);
       if (updateErr) {
         console.error("Update error (social quest):", updateErr);
         return NextResponse.json({ success: false, message: "Failed to update quest" });
@@ -149,13 +151,20 @@ export const POST = async (req: Request) => {
 
     // ✅ Get completed social state
     if (action === "get_social_state") {
-      const completed = Array.isArray(newUser.completed_quests)
-        ? newUser.completed_quests
-        : typeof newUser.completed_quests === "string"
-          ? JSON.parse(newUser.completed_quests)
-          : [];
-      return NextResponse.json({ clickedTasks: completed });
+  let completed: string[] = [];
+  if (typeof newUser.completed_quests === "string") {
+    try {
+      const parsed = JSON.parse(newUser.completed_quests);
+      if (Array.isArray(parsed)) completed = parsed;
+    } catch (e) {
+      console.warn("Parsing failed:", e);
     }
+  } else if (Array.isArray(newUser.completed_quests)) {
+    completed = newUser.completed_quests;
+  }
+  return NextResponse.json({ clickedTasks: completed });
+}
+
 
     // ✅ Check-in logic
     if (action === "checkin") {
