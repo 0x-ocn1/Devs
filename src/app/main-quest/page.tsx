@@ -12,7 +12,7 @@ import SocialQuestSection from "./SocialQuestSection";
 
 
 
-const CONTRACT_ADDRESS = "0xA597a1Dc00E722627bA796dCFF1130d33A35a1Eb";
+const CONTRACT_ADDRESS = "0xf9A82430E15429fD377F513A83F6eF353cf22629";
 const CONTRACT_ABI = [
   "function checkIn() external payable",
   "function boost() external payable"
@@ -99,7 +99,7 @@ export default function QuestPage() {
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-    const value = type === "checkin" ? ethers.parseEther("0.00003") : ethers.parseEther("0.002");
+    const value = type === "checkin" ? ethers.parseEther("0.00002") : ethers.parseEther("0.001");
 
     setLoading(true);
     setMessage(type === "checkin" ? "🧭 Checking in..." : "⚡ Boosting...");
