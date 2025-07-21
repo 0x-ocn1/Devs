@@ -192,14 +192,23 @@ export default function QuestPage() {
       style={{ backgroundImage: 'url("https://i.postimg.cc/Y2s64bFp/Raven-1.png")' }}
     >
       <Navbar />
-      <main className="flex-1 px-6 pt-20 flex flex-col items-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-purple-500 mb-2 drop-shadow-lg">Raven Rush Quest</h1>
-        <p className="max-w-2xl text-center text-sm text-purple-200 mb-6">
-  ✅ Check in daily for just <strong>0.00002 ETH</strong> to earn points! ⚡ Boost your score anytime for <strong>0.002 ETH</strong> (optional).  
-  Complete social quests for an extra <strong>+12 bonus points</strong>, invite your friends, climb the leaderboard, and secure your spot in upcoming rewards! 🏆  
-  <em>Note: Bots will be blocked from rewards. Join us on Discord to learn how it all works!</em>
-</p>
-
+      <main className="flex-1 px-6 pt-24 flex flex-col items-center relative overflow-hidden">
+  <div className="absolute inset-0 bg-gradient-to-b from-purple-900/50 via-transparent to-purple-900/70 pointer-events-none animate-pulse"></div>
+  
+  <h1 className="text-5xl md:text-6xl font-black text-purple-400 mb-4 drop-shadow-[0_2px_8px_rgba(139,92,246,0.8)] tracking-wide animate-fadeIn">
+    Raven Rush Quest
+  </h1>
+  
+  <p className="relative max-w-2xl text-center text-base md:text-lg text-purple-100 mb-8 leading-relaxed backdrop-blur-md bg-purple-800/20 p-4 rounded-xl shadow-md">
+    ✅ <strong className="text-purple-300">Check in daily</strong> for just 
+    <span className="text-emerald-400 font-semibold"> 0.00002 ETH</span> to earn points! ⚡ 
+    Boost your score anytime for 
+    <span className="text-emerald-400 font-semibold"> 0.002 ETH</span> (optional).  
+    Complete <strong className="text-purple-300">social quests</strong> for an extra 
+    <span className="text-yellow-400 font-semibold"> +12 bonus points</span>, invite your friends, 
+    climb the leaderboard, and secure your spot in upcoming rewards! 🏆  
+    <em className="block mt-2 text-xs text-purple-300">Note: Bots will be blocked from rewards. Join us on Discord to learn how it all works!</em>
+  </p>
 
         {mounted && isConnected ? (
   <>
