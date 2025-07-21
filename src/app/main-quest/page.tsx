@@ -196,7 +196,7 @@ export default function QuestPage() {
   <div className="absolute inset-0 bg-gradient-to-b from-purple-900/50 via-transparent to-purple-900/70 pointer-events-none animate-pulse"></div>
   
   <h1 className="text-5xl md:text-6xl font-black text-purple-400 mb-4 drop-shadow-[0_2px_8px_rgba(139,92,246,0.8)] tracking-wide animate-fadeIn">
-    Pre-Testnet Quest
+        Pre-TestQuest
   </h1>
   
   <p className="relative max-w-2xl text-center text-base md:text-lg text-purple-100 mb-8 leading-relaxed backdrop-blur-md bg-purple-800/20 p-4 rounded-xl shadow-md">
