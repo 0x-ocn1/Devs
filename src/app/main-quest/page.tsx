@@ -93,7 +93,7 @@ export default function QuestPage() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-    const value = type === "checkin" ? ethers.parseEther("0.00003") : ethers.parseEther("0.002");
+    const value = type === "checkin" ? ethers.parseEther("0.00002") : ethers.parseEther("0.001");
 
     setLoading(true);
     setMessage(type === "checkin" ? "Checking in..." : "Boosting...");
@@ -323,14 +323,25 @@ export default function QuestPage() {
                       <span>Points</span>
                     </div>
                     <ul className="space-y-1 text-sm text-white">
-                      {leaderboard.map((user, i) => (
-                        <li key={i} className="grid grid-cols-3 border-b border-purple-900 py-1">
-                          <span>#{user.rank}</span>
-                          <span>{user.address.slice(0, 6)}...{user.address.slice(-4)}</span>
-                          <span>{user.points}</span>
-                        </li>
-                      ))}
-                    </ul>
+  {leaderboard.map((user, i) => {
+    const isTop3 = user.rank <= 3;
+    return (
+      <li
+        key={i}
+        className={`grid grid-cols-3 items-center py-2 px-2 rounded-md transition ${
+          isTop3
+            ? "bg-gradient-to-r from-purple-800 to-purple-900 text-yellow-300 font-semibold"
+            : "hover:bg-purple-950 border-b border-purple-900"
+        }`}
+      >
+        <span className="text-center">#{user.rank}</span>
+        <span className="text-center">{user.address.slice(0, 6)}...{user.address.slice(-4)}</span>
+        <span className="text-center">{user.points}</span>
+      </li>
+    );
+  })}
+</ul>
+
                   </motion.div>
                 )}
               </AnimatePresence>
