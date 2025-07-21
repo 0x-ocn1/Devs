@@ -136,48 +136,54 @@ export default function QuestPage() {
 
 
  const fetchLeaderboard = useCallback(async () => {
-  const res = await fetch("/api/user");
-  const data = await res.json();
+  try {
+    const res = await fetch("/api/user");
+    const data = await res.json();
 
-  console.log("Fetched leaderboard data:", data); // ← ADD THIS
+    console.log("Fetched leaderboard data:", data); // debug
 
-  if (Array.isArray(data)) {
-    setLeaderboard(data);
-    const current = data.find(
-      (u: LeaderboardUser) => u.address.toLowerCase() === address?.toLowerCase()
-    );
-    if (current) {
-      setPoints(current.points);
-      setRank(current.rank);
-      setBoostCount(current.boosts || 0);
-      if (current.lastCheckIn) setLastCheckIn(current.lastCheckIn);
+    if (Array.isArray(data)) {
+      setLeaderboard(data);
+      const current = data.find(
+        (u: LeaderboardUser) => u.address.toLowerCase() === address?.toLowerCase()
+      );
+      if (current) {
+        setPoints(current.points);
+        setRank(current.rank);
+        setBoostCount(current.boosts || 0);
+        if (current.lastCheckIn) setLastCheckIn(current.lastCheckIn);
+      }
+    } else if (data && data.leaderboard) {
+      setLeaderboard(data.leaderboard);
+      const current = data.current;
+      if (current) {
+        setPoints(current.points);
+        setRank(current.rank);
+        setBoostCount(current.boosts || 0);
+        if (current.lastCheckIn) setLastCheckIn(current.lastCheckIn);
+      }
+    } else {
+      console.warn("Unexpected data format:", data);
     }
-  } else if (data && data.leaderboard) {
-    setLeaderboard(data.leaderboard);
-    const current = data.current;
-    if (current) {
-      setPoints(current.points);
-      setRank(current.rank);
-      setBoostCount(current.boosts || 0);
-      if (current.lastCheckIn) setLastCheckIn(current.lastCheckIn);
-    }
+  } catch (e) {
+    console.error("Fetch leaderboard failed:", e);
   }
 }, [address]);
 
 
    useEffect(() => {
   if (address) {
-    // First ensure user exists in DB
+    // Always ensure user exists first
     fetch('/api/user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address, action: 'ensure' }),
-    }).then(() => {
-      // Then fetch user points and leaderboard
-      fetchLeaderboard();
-    });
+    })
+    .then(() => fetchLeaderboard())
+    .catch((e) => console.error("Ensure user failed:", e));
   }
 }, [address, fetchLeaderboard]);
+
 
 
   return (
@@ -347,7 +353,7 @@ export default function QuestPage() {
                       <span>Points</span>
                     </div>
                     <ul className="space-y-1 text-sm text-white">
-  {leaderboard.map((user, i) => {
+  {leaderboard.slice(0, 50).map((user, i) => {
     const isTop3 = user.rank <= 3;
     return (
       <li
