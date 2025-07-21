@@ -12,7 +12,9 @@ type Task = {
 type Props = {
   address: string;
   refreshLeaderboard: () => void;
+  setPoints: (points: number) => void;
 };
+
 
 
 const tasks: Task[] = [
@@ -61,9 +63,15 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
       body: JSON.stringify({ address, action: "social_quest", taskId: task.id })
     });
     const data = await res.json();
+
     if (res.ok && data.success && data.clickedTasks) {
       setClickedTasks(data.clickedTasks);
-      refreshLeaderboard();
+
+      if (data.newPoints) {
+        setPoints(data.newPoints); // 🔥 immediately update points in parent
+      }
+
+      refreshLeaderboard(); // also refetch fully to keep everything else in sync
       setMessage(`✅ "${task.label}" completed! +2 points`);
     } else {
       setMessage(data?.message || "❌ Failed to complete task");
@@ -76,7 +84,6 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
     setTimeout(() => setMessage(""), 3000);
   }
 };
-
 
   return (
     <div className="w-full max-w-5xl bg-black/70 border border-purple-800 rounded-lg p-6 mt-6">
@@ -106,6 +113,10 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
 
 export default SocialQuestSection;
 function refreshLeaderboard() {
+  throw new Error("Function not implemented.");
+}
+
+function setPoints(newPoints: any) {
   throw new Error("Function not implemented.");
 }
 

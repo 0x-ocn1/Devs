@@ -115,11 +115,18 @@ export default function QuestPage() {
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data?.message || "Backend error");
 
-    await fetchLeaderboard();
+        if (data.newPoints) {
+      setPoints(data.newPoints); // update immediately
+    }
+    if (type === "boost" && data.newBoosts !== undefined) {
+      setBoostCount(data.newBoosts);
+    }
+    if (type === "checkin") {
+      setLastCheckIn(Date.now()); // so cooldown shows immediately
+    }
     setMessage(type === "checkin" ? "✅ Check-in successful!" : "✅ Boost successful!");
-  } catch (err: any) {
-    console.error("Transaction error:", err);
-    setMessage(err.message || "❌ Transaction failed.");
+    await fetchLeaderboard(); // still refresh fully after
+
   } finally {
     setLoading(false);
     setTimeout(() => setMessage(""), 3000);
@@ -252,7 +259,12 @@ export default function QuestPage() {
   </div>
 )}
 
-<SocialQuestSection address={address || ""} refreshLeaderboard={fetchLeaderboard} />
+<SocialQuestSection 
+  address={address || ""} 
+  refreshLeaderboard={fetchLeaderboard} 
+  setPoints={setPoints}
+/>
+
 
 
             <AnimatePresence>
