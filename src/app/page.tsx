@@ -19,7 +19,7 @@ const sections = [
   {
     title: "Why Play Raven Rush?",
     description:
-      "No randomness – just pure skill. Race in free mode to train, stake tokens in PvP to earn based on performance, or climb weekly leaderboards to win big. Your victories and assets belong to you.",
+      "No randomness, just pure skill. Race in free mode to train, stake tokens in PvP to earn based on performance, or climb weekly leaderboards to win big. Your victories and assets belong to you.",
     image: "https://i.postimg.cc/JnZ73jCG/Race-to-Glory.png",
   },
   {
@@ -31,13 +31,13 @@ const sections = [
   {
     title: "Leaderboard & Genesis Rewards",
     description:
-      "Climb the leaderboard by completing quests to unlock Genesis Rewards, airdrops, and perks. Limited to 30k Beta Pass holders. Race now, secure your spot, and claim exclusive benefits before launch.",
+      "Climb the leaderboard by completing quests to unlock Genesis Rewards, airdrops, and perks. Race now, secure your spot, and claim exclusive benefits before launch.",
     image: "https://i.postimg.cc/VNTpfhTC/Genesis-Reward.png",
   },
   {
     title: "Join our Community",
     description:
-      "More than a game – it’s a community. 🏁 Share race clips, win giveaways, vote on new features, and join weekly events. Whether you race, create, or vibe – there’s a place for you in the Rush. 🚀",
+      "More than a game, it’s a community. 🏁 Share race clips, win giveaways, vote on new features, and join weekly events. Whether you race, create, or vibe, there’s a place for you. 🚀",
     image: "https://i.postimg.cc/1zq0hYZX/65601744-ff2a-4cd5-868e-4d0d1e88c482.png",
   },
 ];
@@ -215,7 +215,7 @@ export default function HomePage() {
         },
         {
           title: "NFT Garage",
-          image: "https://i.postimg.cc/Vv8TGV3d/nft-garage.jpg",
+          image: "https://i.postimg.cc/DfGpspFy/nft-garage.png",
         },
         {
           title: "Champion Podium",
