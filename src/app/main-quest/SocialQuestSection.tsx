@@ -26,7 +26,7 @@ const tasks: Task[] = [
   { id: "comment", label: "Comment on Tweet", url: "https://twitter.com/yourtweet", color: "bg-yellow-500", icon: "💬" }
 ];
 
-const SocialQuestSection: React.FC<Props> = ({ address }) => {
+const SocialQuestSection: React.FC<Props> = ({ address, refreshLeaderboard, setPoints }) => {
   const [clickedTasks, setClickedTasks] = useState<string[]>([]);
   const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -112,11 +112,4 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
 };
 
 export default SocialQuestSection;
-function refreshLeaderboard() {
-  throw new Error("Function not implemented.");
-}
-
-function setPoints(newPoints: any) {
-  throw new Error("Function not implemented.");
-}
 
