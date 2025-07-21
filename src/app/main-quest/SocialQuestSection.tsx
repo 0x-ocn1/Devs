@@ -62,10 +62,12 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
     });
     const data = await res.json();
 
-    if (res.ok && data.success) {
-      setClickedTasks(prev => [...prev, task.id]);
-      setMessage(`✅ "${task.label}" completed! +2 points`);
-      refreshLeaderboard(); // 👈 this triggers UI update in main quest page
+    if (res.ok && data.success && data.clickedTasks) {
+  setClickedTasks(data.clickedTasks); // ✅ Use backend's truth
+  setMessage(`✅ "${task.label}" completed! +2 points`);
+  refreshLeaderboard();
+}
+
     } else {
       setMessage("❌ Failed to complete task");
     }
