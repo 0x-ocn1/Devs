@@ -128,7 +128,7 @@ export default function ReferralPanel() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        🔒 Connect your wallet to see your referral dashboard.
+        🔒 Connect your wallet to view your quest dashboard.
       </motion.div>
     );
   }

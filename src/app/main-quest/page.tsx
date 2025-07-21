@@ -195,8 +195,11 @@ export default function QuestPage() {
       <main className="flex-1 px-6 pt-20 flex flex-col items-center">
         <h1 className="text-4xl md:text-5xl font-extrabold text-purple-500 mb-2 drop-shadow-lg">Raven Rush Quest</h1>
         <p className="max-w-2xl text-center text-sm text-purple-200 mb-6">
-          Complete daily check-ins, boost your points with boosters, earn rewards, and climb the leaderboard.
-        </p>
+  ✅ Check in daily for just <strong>0.00002 ETH</strong> to earn points! ⚡ Boost your score anytime for <strong>0.002 ETH</strong> (optional).  
+  Complete social quests for an extra <strong>+12 bonus points</strong>, invite your friends, climb the leaderboard, and secure your spot in upcoming rewards! 🏆  
+  <em>Note: Bots will be blocked from rewards. Join us on Discord to learn how it all works!</em>
+</p>
+
 
         {mounted && isConnected ? (
   <>
@@ -220,7 +223,7 @@ export default function QuestPage() {
         Disconnect
       </button>
     </div>
-    ...
+    
 
 
       <div className="flex flex-col md:flex-row gap-6 justify-between items-center w-full max-w-5xl">
