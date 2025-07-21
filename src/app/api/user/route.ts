@@ -82,31 +82,59 @@ export async function POST(req: Request) {
       newUser = data as User;
     }
 
-    // 🟢 Social quest: each task can be completed once, adds +2 points
-    if (action === "social_quest" && taskId) {
-      const completed = newUser.completed_quests || [];
-      if (!completed.includes(taskId)) {
-        completed.push(taskId);
-        const { error: updateErr } = await supabase
-          .from("user_data")
-          .update({ points: newUser.points + 2, completed_quests: completed })
-          .eq("address", normalized);
-        if (updateErr) throw updateErr;
+    // ✅ SOCIAL QUEST: add +2 points every time user clicks, keep task disabled until reset
+if (action === "social_quest" && taskId && typeof taskId === "string") {
+  console.log("Received taskId:", taskId);
 
-        return NextResponse.json({ success: true, newPoints: newUser.points + 2, clickedTasks: completed });
-      } else {
-        return NextResponse.json({ success: false, message: "Task already completed" });
+  // Ensure completed_quests is a real array
+  let completed: string[] = [];
+
+  if (Array.isArray(newUser.completed_quests)) {
+    completed = newUser.completed_quests;
+  } else if (typeof newUser.completed_quests === "string") {
+    try {
+      const parsed = JSON.parse(newUser.completed_quests);
+      if (Array.isArray(parsed)) {
+        completed = parsed;
       }
+    } catch (e) {
+      console.warn("Failed to parse completed_quests:", e);
     }
+  }
 
-    // fetch which tasks were completed
+  if (completed.includes(taskId)) {
+    return NextResponse.json({ success: false, message: "Task already completed" });
+  }
+
+  completed.push(taskId);
+
+  const { error: updateErr } = await supabase
+    .from("user_data")
+    .update({
+      points: newUser.points + 2,
+      completed_quests: completed,
+    })
+    .eq("address", normalized);
+
+  if (updateErr) {
+    console.error("Supabase update error:", updateErr);
+    return NextResponse.json({ success: false, message: "Database update failed" });
+  }
+
+  return NextResponse.json({ success: true, newPoints: newUser.points + 2, clickedTasks: completed });
+}
+
+
+
+
+
+    // ✅ GET which tasks user already completed
     if (action === "get_social_state") {
       const completed = newUser.completed_quests || [];
       return NextResponse.json({ clickedTasks: completed });
     }
 
-    // keep other actions as before: checkin, boost, ensure
-    // checkin & boost (short version, add your full logic here if needed)
+    // ✅ Keep other actions unchanged (checkin, boost)
     if (action === "checkin") {
       const now = Date.now();
       const cooldown = 6 * 60 * 60 * 1000;
@@ -126,9 +154,7 @@ export async function POST(req: Request) {
         .eq("address", normalized);
     }
 
-    // ensure: do nothing
-
-    // Rebuild leaderboard
+    // ✅ Rebuild leaderboard & return
     const { data: allUsers, error: allFetchErr } = await supabase.from("user_data").select("*");
     if (allFetchErr || !allUsers) {
       console.error(allFetchErr);
@@ -139,6 +165,7 @@ export async function POST(req: Request) {
     const current = leaderboard.find((u) => u.address === normalized) ?? null;
 
     return NextResponse.json({ success: true, user: current, leaderboard });
+
   } catch (err) {
     console.error("POST /api/user error:", err);
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });

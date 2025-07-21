@@ -2,11 +2,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-
 type Task = {
   id: string;
   label: string;
   url: string;
+  color: string;
+  icon: string;
 };
 
 type Props = {
@@ -14,42 +15,54 @@ type Props = {
 };
 
 const tasks: Task[] = [
-  { id: "follow_twitter", label: "Follow Twitter", url: "https://twitter.com/yourprofile" },
-  { id: "join_discord", label: "Join Discord", url: "https://discord.gg/yourinvite" },
-  { id: "tweet_project", label: "Tweet About Us", url: "https://twitter.com/intent/tweet?text=Check%20out%20Raven%20Rush!" }
+  { id: "follow_twitter", label: "Follow on Twitter", url: "https://twitter.com/yourprofile", color: "bg-blue-600", icon: "🐦" },
+  { id: "join_discord", label: "Join Discord", url: "https://discord.gg/yourinvite", color: "bg-purple-700", icon: "💬" },
+  { id: "tweet_about", label: "Tweet About Us", url: "https://twitter.com/intent/tweet?text=Check%20out%20Raven%20Rush!", color: "bg-blue-500", icon: "📣" },
+  { id: "like_tweet", label: "Like our Tweet", url: "https://twitter.com/yourtweet", color: "bg-pink-600", icon: "❤️" },
+  { id: "retweet", label: "Retweet", url: "https://twitter.com/yourtweet", color: "bg-green-600", icon: "🔁" },
+  { id: "comment", label: "Comment on Tweet", url: "https://twitter.com/yourtweet", color: "bg-yellow-500", icon: "💬" }
 ];
 
 const SocialQuestSection: React.FC<Props> = ({ address }) => {
-  const [taskLoading, setTaskLoading] = useState(false);
   const [clickedTasks, setClickedTasks] = useState<string[]>([]);
-  const [cooldownStart, setCooldownStart] = useState<number | null>(null);
+  const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
-  const handleClick = async (task: Task) => {
-    if (taskLoading || clickedTasks.includes(task.id)) return;
-    window.open(task.url, "_blank");
+  // Fetch completed tasks on load
+  useEffect(() => {
+    const fetchCompletedTasks = async () => {
+      try {
+        const res = await fetch("/api/user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, action: "get_social_state" })
+        });
+        const data = await res.json();
+        if (res.ok && data.clickedTasks) {
+          setClickedTasks(data.clickedTasks);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchCompletedTasks();
+  }, [address]);
 
-    setTaskLoading(true);
+  const handleClick = async (task: Task) => {
+    if (loadingTaskId || clickedTasks.includes(task.id)) return;
+    window.open(task.url, "_blank");
+    setLoadingTaskId(task.id);
 
     try {
       const res = await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address,
-          action: "social_quest",
-          taskId: task.id
-        })
+        body: JSON.stringify({ address, action: "social_quest", taskId: task.id })
       });
-
       const data = await res.json();
 
       if (res.ok && data.success) {
-        const updated = Array.from(new Set([...clickedTasks, task.id]));
-        setClickedTasks(updated);
-        if (updated.length === 3) {
-          setCooldownStart(Date.now());
-        }
+        setClickedTasks(prev => [...prev, task.id]);
         setMessage(`✅ "${task.label}" completed! +2 points`);
       } else {
         setMessage("❌ Failed to complete task");
@@ -58,55 +71,33 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
       console.error(e);
       setMessage("❌ Server error");
     } finally {
-      setTaskLoading(false);
+      setLoadingTaskId(null);
       setTimeout(() => setMessage(""), 3000);
     }
   };
 
-  const getRemainingTime = () => {
-    if (!cooldownStart) return null;
-    const endsAt = cooldownStart + 6 * 60 * 60 * 1000;
-    const diff = endsAt - Date.now();
-    if (diff <= 0) {
-      setClickedTasks([]);
-      setCooldownStart(null);
-      return null;
-    }
-    const hours = Math.floor(diff / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
-    return `${hours}h ${minutes}m`;
-  };
-
   return (
-    <div className="w-full max-w-5xl bg-black/60 border border-purple-800 rounded-lg p-6 mt-6">
+    <div className="w-full max-w-5xl bg-black/70 border border-purple-800 rounded-lg p-6 mt-6">
       <h3 className="text-xl font-bold text-purple-300 mb-4">🔥 Social Quests</h3>
-      <div className="grid md:grid-cols-3 gap-4">
-        {tasks.map(task => (
-          <button
-            key={task.id}
-            onClick={() => handleClick(task)}
-            disabled={clickedTasks.includes(task.id) || taskLoading}
-            className={`px-4 py-2 rounded-lg text-white font-semibold shadow text-center transition
-              ${clickedTasks.includes(task.id)
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-gradient-to-r from-purple-700 to-purple-900 hover:from-purple-800 hover:to-purple-950"}`}
-          >
-            {task.label}
-          </button>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {tasks.map(task => {
+          const completed = clickedTasks.includes(task.id);
+          return (
+            <button
+              key={task.id}
+              onClick={() => handleClick(task)}
+              disabled={completed || loadingTaskId === task.id}
+              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white font-semibold shadow transition transform hover:scale-105
+                ${completed ? "bg-gray-600 cursor-not-allowed" : `${task.color} hover:opacity-90`}`}
+            >
+              <span>{task.icon}</span>
+              <span>{task.label}</span>
+              {completed && <span className="text-green-300">✔</span>}
+            </button>
+          );
+        })}
       </div>
-
-      {cooldownStart && (
-        <p className="mt-2 text-sm text-yellow-300 animate-pulse">
-          ⏱ Next quest refresh: {getRemainingTime()}
-        </p>
-      )}
-
-      <div className="mt-4 text-purple-400 text-xs border-t border-purple-800 pt-2">
-        <p>✨ Complete all 3 quests to earn +2 points each. After 6h cooldown, you can do them again!</p>
-      </div>
-
-      {message && <p className="text-sm mt-2 text-white">{message}</p>}
+      {message && <p className="text-sm mt-3 text-white">{message}</p>}
     </div>
   );
 };
