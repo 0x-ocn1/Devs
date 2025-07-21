@@ -19,6 +19,7 @@ interface LeaderboardUser {
 
 function buildLeaderboard(users: User[]): LeaderboardUser[] {
   return [...users]
+    .filter((u) => u.points >= 50) // ✅ Only include users with 50+ points
     .sort((a, b) => b.points - a.points)
     .map((u, i) => ({
       address: u.address,
@@ -28,6 +29,7 @@ function buildLeaderboard(users: User[]): LeaderboardUser[] {
       rank: i + 1,
     }));
 }
+
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
