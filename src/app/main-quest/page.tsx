@@ -93,7 +93,7 @@ export default function QuestPage() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-    const value = type === "checkin" ? ethers.parseEther("0.00002") : ethers.parseEther("0.001");
+    const value = type === "checkin" ? ethers.parseEther("0.00003") : ethers.parseEther("0.002");
 
     setLoading(true);
     setMessage(type === "checkin" ? "Checking in..." : "Boosting...");
