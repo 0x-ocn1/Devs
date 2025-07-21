@@ -60,25 +60,33 @@ const SocialQuestSection: React.FC<Props> = ({ address }) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address, action: "social_quest", taskId: task.id })
     });
-    const data = await res.json();
 
-    if (res.ok && data.success) {
-  setClickedTasks(prev => [...prev, task.id]); 
-  setMessage(`✅ "${task.label}" completed! +2 points`);
-  refreshLeaderboard();
-}
- 
+    let data;
+    try {
+      data = await res.json(); // parse JSON safely
+    } catch (e) {
+      console.warn("Failed to parse JSON:", e);
+      setMessage("❌ Failed to parse response");
+      return;
+    }
+
+    if (res.ok && data.success && data.clickedTasks) {
+      setClickedTasks(data.clickedTasks);
+      setMessage(`✅ "${task.label}" completed! +2 points`);
+      refreshLeaderboard();
     } else {
-      setMessage("❌ Failed to complete task");
+      console.warn("Unexpected response:", data);
+      setMessage(data?.message || "❌ Failed to complete task");
     }
   } catch (e) {
-    console.error(e);
+    console.error("Request error:", e);
     setMessage("❌ Server error");
   } finally {
     setLoadingTaskId(null);
     setTimeout(() => setMessage(""), 3000);
   }
 };
+
 
 
   return (

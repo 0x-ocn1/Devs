@@ -88,41 +88,56 @@ export default function QuestPage() {
   }, [lastCheckIn]);
 
   async function handleTransaction(type: "checkin" | "boost") {
+  if (!address) {
+    setMessage("❌ Wallet not connected.");
+    return;
+  }
+
   try {
+    console.log("🏁 Starting transaction:", type, "for", address);
+
     if (!window.ethereum) throw new Error("Wallet not detected");
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
     const value = type === "checkin" ? ethers.parseEther("0.00003") : ethers.parseEther("0.002");
 
     setLoading(true);
-    setMessage(type === "checkin" ? "Checking in..." : "Boosting...");
+    setMessage(type === "checkin" ? "🧭 Checking in..." : "⚡ Boosting...");
 
-    // Send tx
     const tx = await contract[type === "checkin" ? "checkIn" : "boost"]({ value });
+    console.log("🔃 Transaction sent:", tx.hash);
+
     await tx.wait();
+    console.log("✅ Transaction confirmed:", tx.hash);
 
     setRecentTxs((prev) => [tx.hash, ...prev.slice(0, 4)]);
 
-    // Update backend
-    await fetch('/api/user', {
+    const res = await fetch('/api/user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address, action: type })
+      body: JSON.stringify({ address, action: type }),
     });
 
-    // Fetch fresh data to update points, cooldown, etc.
+    const data = await res.json();
+    console.log("📦 Backend response:", data);
+
+    if (!res.ok) throw new Error(data.error || "Backend error");
+
     await fetchLeaderboard();
 
-    setMessage(type === "checkin" ? "✅ Check-in successful!" : "⚡ Boost successful!");
-  } catch (err) {
-    console.error(err);
-    setMessage("❌ Transaction failed.");
+    setMessage(type === "checkin" ? "✅ Check-in successful!" : "✅ Boost successful!");
+  } catch (err: any) {
+    console.error("❌ handleTransaction error:", err);
+    setMessage(err.message || "❌ Transaction failed.");
   } finally {
     setLoading(false);
     setTimeout(() => setMessage(""), 3000);
   }
 }
+
+
   
  const fetchLeaderboard = useCallback(async () => {
   const res = await fetch("/api/user");
@@ -201,30 +216,30 @@ export default function QuestPage() {
     ...
 
 
-               <div className="flex flex-col md:flex-row gap-6 justify-between items-center w-full max-w-5xl">
+      <div className="flex flex-col md:flex-row gap-6 justify-between items-center w-full max-w-5xl">
   <div className="text-center bg-black/60 border border-purple-800 px-6 py-4 rounded-lg shadow-md">
     <p className="text-sm text-purple-300">⭐ Total Points</p>
     <p className="text-2xl font-bold">{points}</p>
     {rank !== null && (
-      <p className="text-sm font-semibold text-yellow-300 mt-1">
-        🎖️ Rank: #{rank}
-      </p>
+      <p className="text-sm font-semibold text-yellow-300 mt-1">🎖️ Rank: #{rank}</p>
     )}
   </div>
 
   <div className="flex flex-col items-center">
     <button
       onClick={() => handleTransaction("checkin")}
-      disabled={loading || !!cooldown}
+      disabled={loading || (cooldown !== null && cooldown > 0)}
       className={`w-40 py-3 rounded-md font-semibold transition ${
-        cooldown
+        loading
+          ? "bg-gray-600 cursor-not-allowed"
+          : cooldown
           ? "bg-blue-600 cursor-not-allowed"
           : "bg-purple-600 hover:bg-purple-700"
       }`}
     >
-      🧭 Check-in
+      {loading ? "⏳ Processing..." : "🧭 Check-in"}
     </button>
-    {cooldown && (
+    {cooldown && cooldown > 0 && (
       <p className="mt-2 text-xl font-bold text-yellow-300 animate-pulse">
         ⏱ Next check-in: {formatTime(cooldown)}
       </p>
@@ -237,7 +252,7 @@ export default function QuestPage() {
       disabled={loading}
       className="w-40 py-3 rounded-md font-semibold bg-yellow-500 hover:bg-yellow-600 text-black transition shadow"
     >
-      ⚡ Boost ({boostCount})
+      {loading ? "⏳ Boosting..." : `⚡ Boost (${boostCount})`}
     </button>
   </div>
 </div>
