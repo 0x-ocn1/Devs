@@ -20,7 +20,7 @@ type Props = {
 const tasks: Task[] = [
   { id: "follow_twitter", label: "Follow on Twitter", url: "https://twitter.com/raven_rush1", color: "bg-blue-600", icon: "🐦" },
   { id: "join_discord", label: "Join Discord", url: "https://discord.gg/ZcfGd3DJjd", color: "bg-purple-700", icon: "💬" },
-  { id: "tweet_about", label: "Tweet About Us", url: "https://twitter.com/intent/tweet?text=Just%20joined%20@Raven_Rush1!%20⚡️%20Daily%20check-ins,%20boosts%20and%20fun%20quests%20to%20earn%20points%20and%20climb%20the%20leaderboard!%20🏆%20Come%20play%20with%20me%20and%20win%20rewards!",
+  { id: "tweet_about", label: "Tweet About Us", url: "https://twitter.com/intent/tweet?text=Just%20joined%20@Raven_Rush1!%20⚡️%20Daily%20check-ins,%20boosts%20and%20fun%20quests%20to%20earn%20points%20and%20climb%20the%20leaderboard!%20🏆%20👉%20Come%20play%20with%20me%20and%20win%20rewards:%20https%3A%2F%2Fraven-rush.org%2Fmain-quest",
   color: "bg-blue-500",
   icon: "📣" },
   { id: "like_tweet", label: "Like our Tweet", url: "https://x.com/raven_rush1/status/1945814299357655137", color: "bg-pink-600", icon: "❤️" },
