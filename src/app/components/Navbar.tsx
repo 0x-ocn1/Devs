@@ -23,9 +23,15 @@ export default function Navbar() {
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <nav className="hidden md:flex gap-6 text-sm font-medium">
+        <nav className="hidden md:flex gap-6 text-sm font-medium items-center">
           <Link href="/" className="hover:text-gray-300">Home</Link>
           <Link href="/main-quest" className="hover:text-gray-300">Main Quest</Link>
+          <Link 
+            href="/claim-wRaven" 
+            className="bg-gradient-to-r from-purple-600 to-purple-800 px-3 py-1 rounded-full font-semibold hover:opacity-90 transition"
+          >
+            Claim wRaven
+          </Link> {/* NEW styled */}
           <a href="https://discord.gg/ZcfGd3DJjd" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Discord</a>
           <a href="https://twitter.com/raven_rush1" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Twitter</a>
         </nav>
@@ -36,6 +42,13 @@ export default function Navbar() {
         <div className="md:hidden px-4 pb-4 bg-black text-sm space-y-2">
           <Link href="/" onClick={toggleMenu} className="block">Home</Link>
           <Link href="/main-quest" onClick={toggleMenu} className="block">Main Quest</Link>
+          <Link 
+            href="/claim-wRaven" 
+            onClick={toggleMenu}
+            className="block bg-gradient-to-r from-purple-600 to-purple-800 px-3 py-1 rounded-full font-semibold text-center hover:opacity-90 transition"
+          >
+            Claim wRaven
+          </Link> {/* NEW styled */}
           <a href="https://discord.gg/ZcfGd3DJjd" target="_blank" rel="noopener noreferrer" onClick={toggleMenu} className="block">Discord</a>
           <a href="https://twitter.com/raven_rush1" target="_blank" rel="noopener noreferrer" onClick={toggleMenu} className="block">Twitter</a>
         </div>

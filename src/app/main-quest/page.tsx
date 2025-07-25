@@ -95,7 +95,7 @@ export default function QuestPage() {
 
   try {
     if (!window.ethereum) throw new Error("Wallet not detected");
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider(window.ethereum as any);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
