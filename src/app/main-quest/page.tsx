@@ -202,9 +202,9 @@ export default function QuestPage() {
   
   <p className="relative max-w-2xl text-center text-base md:text-lg text-purple-100 mb-8 leading-relaxed backdrop-blur-md bg-purple-800/20 p-4 rounded-xl shadow-md">
     ✅ <strong className="text-purple-300">Check in daily</strong> for just 
-    <span className="text-emerald-400 font-semibold"> 0.00002 ETH</span> to earn points! ⚡ 
+    <span className="text-emerald-400 font-semibold"> 0.00002 ARB_ETH</span> to earn points! ⚡ 
     Boost your score anytime for 
-    <span className="text-emerald-400 font-semibold"> 0.002 ETH</span> (optional).  
+    <span className="text-emerald-400 font-semibold"> 0.002 ARB_ETH</span> (optional).  
     Complete <strong className="text-purple-300">social quests</strong> for an extra 
     <span className="text-yellow-400 font-semibold"> +12 bonus points</span>, invite your friends, 
     climb the leaderboard, and secure your spot in upcoming rewards! 🏆  
