@@ -133,7 +133,7 @@ export default function ClaimWRavenPage() {
         </motion.h1>
 
         <p className="text-center text-base md:text-lg text-purple-100 mb-8 leading-relaxed bg-purple-800/20 p-4 rounded-xl">
-          🪂 Connect your wallet, check eligibility & claim! <br />
+          🪂 Connect your wallet, check if you’re eligible, and claim wRaven! Eligibility is based on your activity on Arbitrum, Polygon, BNB, and Ethereum — no approvals needed, just one interaction. wRaven will be redeemable for $RAVEN at TGE <br />
           Progress: <span className="text-yellow-300 font-semibold">{Math.floor(progress)}%</span>
         </p>
 
