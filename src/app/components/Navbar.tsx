@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Twitter, MessageCircleMore } from "lucide-react";
 
-export default function Navbar() { 
+export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  const baseButton =
+    "inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition text-sm";
+  const solidButton =
+    `${baseButton} bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-md hover:shadow-purple-600/50 hover:scale-105`;
+  const outlineButton =
+    `${baseButton} border border-purple-500 text-purple-300 hover:bg-purple-700/20 hover:scale-105`;
 
   return (
     <header className="bg-black text-white w-full shadow-sm fixed top-0 left-0 z-50">
@@ -23,34 +29,53 @@ export default function Navbar() {
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <nav className="hidden md:flex gap-6 text-sm font-medium items-center">
+        <nav className="hidden md:flex gap-4 text-sm font-medium items-center">
           <Link href="/" className="hover:text-gray-300">Home</Link>
-          <Link href="/main-quest" className="hover:text-gray-300">Main Quest</Link>
-          <Link 
-            href="/claim-wRaven" 
-            className="bg-gradient-to-r from-purple-600 to-purple-800 px-3 py-1 rounded-full font-semibold hover:opacity-90 transition"
+          <Link href="/main-quest" className={solidButton}>Main Quest</Link>
+          <Link href="/claim-wRaven" className={solidButton}>Claim wRaven</Link>
+          <a
+            href="https://discord.gg/ZcfGd3DJjd"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={outlineButton}
           >
-            Claim wRaven
-          </Link> {/* NEW styled */}
-          <a href="https://discord.gg/ZcfGd3DJjd" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Discord</a>
-          <a href="https://twitter.com/raven_rush1" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">Twitter</a>
+            <MessageCircleMore size={16} /> Discord
+          </a>
+          <a
+            href="https://twitter.com/raven_rush1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={outlineButton}
+          >
+            <Twitter size={16} /> Twitter
+          </a>
         </nav>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden px-4 pb-4 bg-black text-sm space-y-2">
+        <div className="md:hidden px-4 pb-4 bg-black text-sm space-y-3 mt-2">
           <Link href="/" onClick={toggleMenu} className="block">Home</Link>
-          <Link href="/main-quest" onClick={toggleMenu} className="block">Main Quest</Link>
-          <Link 
-            href="/claim-wRaven" 
+          <Link href="/main-quest" onClick={toggleMenu} className={solidButton}>Main Quest</Link>
+          <Link href="/claim-wRaven" onClick={toggleMenu} className={solidButton}>Claim wRaven</Link>
+          <a
+            href="https://discord.gg/ZcfGd3DJjd"
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={toggleMenu}
-            className="block bg-gradient-to-r from-purple-600 to-purple-800 px-3 py-1 rounded-full font-semibold text-center hover:opacity-90 transition"
+            className={outlineButton}
           >
-            Claim wRaven
-          </Link> {/* NEW styled */}
-          <a href="https://discord.gg/ZcfGd3DJjd" target="_blank" rel="noopener noreferrer" onClick={toggleMenu} className="block">Discord</a>
-          <a href="https://twitter.com/raven_rush1" target="_blank" rel="noopener noreferrer" onClick={toggleMenu} className="block">Twitter</a>
+            <MessageCircleMore size={16} /> Discord
+          </a>
+          <a
+            href="https://twitter.com/raven_rush1"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={toggleMenu}
+            className={outlineButton}
+          >
+            <Twitter size={16} /> Twitter
+          </a>
         </div>
       )}
     </header>

@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Footer from './components/Footer';
-import Navbar from './components/Navbar';
+import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
+import RoadmapSection from "./components/RoadmapSection";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 30 },
@@ -44,235 +45,224 @@ const sections = [
 
 export default function HomePage() {
   return (
-    <div
-      className="flex flex-col min-h-screen font-sans"
-      style={{
-        backgroundImage: 'url("https://i.postimg.cc/Y2s64bFp/Raven-1.png")',
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundColor: "#050013",
-      }}
-    >
+    <div className="flex flex-col min-h-screen font-sans bg-black text-white">
       <Navbar />
 
-      <main className="flex-1 text-white px-4 py-14 bg-black/90 backdrop-blur-sm flex flex-col items-center">
-        {/* Hero */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeIn}
-          transition={{ duration: 0.8 }}
-          className="flex flex-col items-center text-center mb-16 space-y-4"
-        >
+      <main className="flex-1 px-4 py-14 bg-black/90 backdrop-blur-md">
+        {/* Hero Section */}
+        <section className="flex flex-col items-center text-center mb-20">
           <motion.img
             src="https://i.postimg.cc/05YvjHFS/Raven-Rush-logo-2-0.png"
             alt="Raven Rush Logo"
             className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-purple-600 shadow-[0_0_20px_rgba(168,85,247,0.8)]"
-            whileHover={{ scale: 1.07 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
           />
-          <h1 className="text-5xl md:text-7xl font-extrabold text-purple-400 tracking-wide drop-shadow-xl">
+          <motion.h1
+            className="text-4xl md:text-6xl font-extrabold text-purple-400 mt-6"
+            initial="hidden"
+            animate="visible"
+            variants={fadeIn}
+            transition={{ duration: 0.8 }}
+          >
             Race. Stake. Conquer.
-          </h1>
-          <p className="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
+          </motion.h1>
+          <p className="mt-4 text-lg max-w-xl text-gray-300">
             Raven Rush is a decentralized PvP racing game. Compete for glory, trade in-game assets, and own your progress.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 pt-5">
-            {[
-              { label: "🎟️ Join the Waitlist", href: "https://tally.so/r/nGVddZ" },
-              { label: "🚀 Mint Beta Pass", href: "https://raven-rush-beta-pass.nfts2.me/" },
-              { label: "📖 Read our Docs", href: "https://raven-rush.gitbook.io/docs" },
-              { label: "🛡️ Join Guild", href: "https://guild.xyz/raven-rush" }
-            ].map((btn) => (
-              <motion.a
-                key={btn.label}
-                whileHover={{ scale: 1.07 }}
-                whileTap={{ scale: 0.96 }}
-                href={btn.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-purple-700 hover:bg-purple-800 px-6 py-2 rounded-lg font-semibold shadow-[0_0_12px_rgba(139,92,246,0.6)] transition-all duration-200"
-              >
-                {btn.label}
-              </motion.a>
-            ))}
+        </section>
+
+        {/* Animated Overview Sections */}
+        <div className="space-y-32 max-w-7xl mx-auto px-4">
+          {sections.map((sec, idx) => (
+            <motion.section
+              key={idx}
+              className="grid md:grid-cols-2 gap-12 items-center"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={fadeIn}
+              transition={{ duration: 0.6 + idx * 0.15 }}
+            >
+              <div className={`${idx % 2 === 1 ? 'md:order-2' : ''}`}>
+                <img
+                  src={sec.image}
+                  alt={sec.title}
+                  className="rounded-3xl shadow-2xl w-full object-cover"
+                />
+              </div>
+              <div className="text-left">
+                <h2 className="text-4xl font-bold text-purple-400 mb-4">{sec.title}</h2>
+                <p className="text-gray-300 text-lg leading-relaxed max-w-prose">
+                  {sec.description}
+                </p>
+              </div>
+            </motion.section>
+          ))}
+        </div>
+
+
+         {/* wRaven Token Section */}
+<section className="mt-32 max-w-4xl mx-auto px-4 text-center">
+  <motion.h2
+    className="text-4xl font-bold text-purple-300 mb-6"
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true }}
+    variants={{
+      hidden: { opacity: 0, y: 30 },
+      visible: { opacity: 1, y: 0 },
+    }}
+    transition={{ duration: 0.6 }}
+  >
+    🔄 Claim wRaven, Earn Real $Raven
+  </motion.h2>
+  <motion.p
+    className="text-gray-300 text-lg leading-relaxed mb-8 max-w-2xl mx-auto"
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6, delay: 0.2 }}
+  >
+    Claim your <strong className="text-purple-400">wRaven</strong> and convert it to <strong className="text-purple-400">$Raven</strong> before launch.  
+    $Raven fuels the entire game economy, use it to race, upgrade gear, mint NFTs, and stake in PvP.  
+    Early players get a head start.
+  </motion.p>
+  <motion.a
+    href="https://raven-rush.org/claim-wRaven"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-block bg-purple-600 hover:bg-purple-700 transition-colors text-white font-bold py-3 px-6 rounded-full shadow-lg"
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.97 }}
+  >
+    🚀 Claim wRaven & Join Pre-Testnet Quest
+  </motion.a>
+</section>
+
+        {/* Featured Assets */}
+        <section className="mt-32 max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-purple-300 text-center mb-10">
+            🎮 Featured Assets & Highlights
+          </h2>
+          <div className="overflow-x-auto">
+            <div className="flex gap-6 snap-x snap-mandatory px-2 pb-4">
+              {["Cyber Racer", "Legendary Helmet", "Mystic Booster", "NFT Garage", "Champion Podium"].map((title, i) => (
+                <motion.div
+                  key={i}
+                  className="snap-center min-w-[240px] md:min-w-[300px] bg-black/60 border border-purple-600 rounded-2xl shadow-md overflow-hidden"
+                  whileHover={{ scale: 1.06 }}
+                >
+                  <img
+                    src={`https://i.postimg.cc/${[
+                      "L6ndr3Fc/Cyber-racer.png",
+                      "4NhL6Lgx/Legendary-helment.png",
+                      "J0XFzP70/Mystic-Booster.png",
+                      "DfGpspFy/nft-garage.png",
+                      "vHB1kkBG/champoin-podium.png",
+                    ][i]}`}
+                    alt={title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-3 text-center">
+                    <h4 className="text-lg font-semibold text-purple-300">{title}</h4>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </motion.div>
-
-        {/* Section Cards: 3 top + 2 bottom */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl w-full">
-          {sections.slice(0, 3).map((section) => (
-            <motion.div
-              key={section.title}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeIn}
-              transition={{ duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-black/60 border border-purple-600/50 rounded-2xl overflow-hidden shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-purple-700/40 transition-all duration-300"
-            >
-              <img
-                src={section.image}
-                alt={section.title}
-                className="h-48 w-full object-cover"
-              />
-              <div className="p-5 space-y-2">
-                <h3 className="text-xl font-bold text-purple-300">{section.title}</h3>
-                <p className="text-gray-300">{section.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 max-w-5xl w-full">
-          {sections.slice(3).map((section) => (
-            <motion.div
-              key={section.title}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeIn}
-              transition={{ duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-black/60 border border-purple-600/50 rounded-2xl overflow-hidden shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-purple-700/40 transition-all duration-300"
-            >
-              <img
-                src={section.image}
-                alt={section.title}
-                className="h-48 w-full object-cover"
-              />
-              <div className="p-5 space-y-2">
-                <h3 className="text-xl font-bold text-purple-300">{section.title}</h3>
-                <p className="text-gray-300">{section.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        </section>
 
         {/* Roadmap Section */}
-        <motion.section
-          className="mt-20 bg-gradient-to-br from-[#120022] via-[#2d0040] to-[#3a006a] rounded-2xl p-10 max-w-7xl w-full text-white shadow-[0_0_25px_rgba(139,92,246,0.5)] border border-purple-700/40"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex flex-col md:flex-row gap-8 items-center">
-            <motion.img
-              src="https://i.postimg.cc/R0D7j5Yj/Road-map-0.png"
-              alt="Roadmap"
-              className="w-full md:w-1/2 rounded-xl object-cover"
-              whileHover={{ scale: 1.02 }}
-            />
-            <div className="md:w-1/2 space-y-5">
-              <h3 className="text-4xl font-bold text-purple-300">🚗 Roadmap</h3>
-              <div className="space-y-4 text-gray-200 text-base leading-relaxed">
-                <div>
-                  <span className="font-semibold text-purple-400">🚧 Phase 1: Build the Community</span><br />
-                  Launch waitlist & Galxe campaigns to onboard 30,000 early supporters.
-                </div>
-                <div>
-                  <span className="font-semibold text-purple-400">🚀 Phase 2: Beta Launch</span><br />
-                  Testers play PvP, join tournaments, and share feedback.
-                </div>
-                <div>
-                  <span className="font-semibold text-purple-400">🌍 Phase 3: Global Launch</span><br />
-                  Full gameplay, marketplace, tournaments & mobile version.
-                </div>
-              </div>
-            </div>
-          
+        <RoadmapSection />
+
+        {/* New: Racer’s Mindset Section */}
+        <section className="mt-32 max-w-6xl mx-auto px-4">
+          <motion.h2
+            className="text-4xl font-bold text-purple-300 text-center mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+            transition={{ duration: 0.6 }}
+          >
+            🧠 The Racer Mindset
+          </motion.h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Precision Over Luck",
+                desc: "Every corner counts. True racers master the track, not RNG. Raven Rush rewards skill, not chance.",
+              },
+              {
+                title: "Earn What You Burn",
+                desc: "The more you grind, the more you shine. Victories earn assets. Assets earn value.",
+              },
+              {
+                title: "Evolve to Dominate",
+                desc: "Upgrade, adapt, and refine your style. Racing is not just speed — it is evolution under pressure.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
+                className="bg-black/60 border border-purple-700 rounded-xl p-6 shadow-lg hover:shadow-purple-500/30"
+              >
+                <h3 className="text-xl font-bold text-purple-300 mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
           </div>
-        </motion.section>
-{/* Horizontal Scrollable Gallery */}
-<motion.section
-  className="mt-20 w-full max-w-7xl px-2"
-  initial="hidden"
-  whileInView="visible"
-  viewport={{ once: true }}
-  variants={fadeIn}
-  transition={{ duration: 0.7 }}
->
-  <h2 className="text-3xl md:text-4xl font-extrabold text-purple-300 mb-6 text-center">
-    🎮 Featured Assets & Highlights
-  </h2>
-  <div className="overflow-x-auto scrollbar-hide">
-    <div className="flex gap-6 snap-x snap-mandatory overflow-x-scroll px-1 pb-4">
-      {[
-        {
-          title: "Cyber Racer",
-          image: "https://i.postimg.cc/L6ndr3Fc/Cyber-racer.png",
-        },
-        {
-          title: "Legendary Helmet",
-          image: "https://i.postimg.cc/4NhL6Lgx/Legendary-helment.png",
-        },
-        {
-          title: "Mystic Booster",
-          image: "https://i.postimg.cc/J0XFzP70/Mystic-Booster.png",
-        },
-        {
-          title: "NFT Garage",
-          image: "https://i.postimg.cc/DfGpspFy/nft-garage.png",
-        },
-        {
-          title: "Champion Podium",
-          image: "https://i.postimg.cc/vHB1kkBG/champoin-podium.png",
-        },
-      ].map((item, index) => (
-        <motion.div
-          key={index}
-          whileHover={{ scale: 1.06 }}
-          className="snap-center min-w-[240px] md:min-w-[300px] bg-black/60 rounded-2xl border border-purple-600/40 shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-purple-500/40 overflow-hidden transition-all duration-300"
-        >
-          <img
-            src={item.image}
-            alt={item.title}
-            className="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
-          />
-          <div className="p-3 text-center">
-            <h4 className="text-lg font-semibold text-purple-300">{item.title}</h4>
-          </div>
-        </motion.div>
-      ))}
-    </div>
+        </section>
+
+        {/* Powered By Section */}
+<section className="relative mt-32 py-12 bg-gradient-to-br from-purple-900/30 via-black to-purple-800/20 rounded-3xl shadow-[0_0_40px_rgba(168,85,247,0.4)] max-w-5xl mx-auto px-6 text-center">
+  <motion.h2
+    className="text-2xl md:text-3xl font-bold text-purple-300 mb-8"
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6 }}
+  >
+    🔗 Built with the Power of Leading Chains
+  </motion.h2>
+  <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+    {[
+      { name: "Arbitrum", src: "J09Gb4WK/Arbitrum.png" },
+      { name: "Polygon", src: "G9wm47k5/polygon.png" },
+      { name: "Solana", src: "tghtJwWL/solana.png" },
+      { name: "BNB Chain", src: "yNd34Gnm/Bnb-chain.png" },
+    ].map((chain, idx) => (
+      <motion.div
+        key={chain.name}
+        className="bg-black/60 hover:bg-black/80 border border-purple-500 rounded-xl p-3 shadow-inner backdrop-blur-sm transition duration-300"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.2 + idx * 0.15, duration: 0.4 }}
+      >
+        <img
+          src={`https://i.postimg.cc/${chain.src}`}
+          alt={chain.name}
+          className="w-10 h-10 md:w-12 md:h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+        />
+        <p className="mt-2 text-sm text-purple-200">{chain.name}</p>
+      </motion.div>
+    ))}
   </div>
-</motion.section> 
-
-
-{/* Powered by Logos Section */}
-<motion.div
-  className="flex items-center gap-4 mt-8 mb-4 justify-center md:justify-start"
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.6 }}
->
-  <span className="opacity-80 text-sm">Powered by</span>
-
-  {[
-    "https://i.postimg.cc/J09Gb4WK/Arbitrum.png",
-    "https://i.postimg.cc/G9wm47k5/polygon.png",
-    "https://i.postimg.cc/tghtJwWL/solana.png",
-    "https://i.postimg.cc/yNd34Gnm/Bnb-chain.png"
-  ].map((src, idx) => (
-    <motion.img
-      key={idx}
-      src={src}
-      alt={`partner-${idx}`}
-      className="w-6 h-6 md:w-7 md:h-7 object-contain opacity-80 hover:opacity-100 transition duration-200"
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.2 + idx * 0.15, duration: 0.4 }}
-    />
-  ))}
-</motion.div>
-
-     
+</section>
       </main>
 
       <Footer />
     </div>
   );
 }
+
