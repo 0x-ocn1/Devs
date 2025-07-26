@@ -193,8 +193,8 @@ export default function HomePage() {
         desc: "No randomness, no gimmicks. Just pure skill. Practice in free mode, stake tokens in PvP, or conquer weekly leaderboards. Win, earn, and evolve.",
       },
       {
-        title: "Beta Pass NFT",
-        desc: "Mint your Beta Pass to access early testnet gameplay. Unlock exclusive perks, early features, and a permanent spot in the Raven Rush Hall of Fame.",
+        title: "Modular. Upgradable. Yours",
+        desc: "From garage customization to racing gear, Raven Rush gives you full ownership of your in-game assets. Upgrade, trade, or flex them — they are on-chain and interoperable. Your progress is stored forever, your identity travels with you.",
       },
       {
         title: "Leaderboard & Genesis Rewards",
