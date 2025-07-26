@@ -23,9 +23,9 @@ const tasks: Task[] = [
   { id: "tweet_about", label: "Tweet About Us", url: "https://twitter.com/intent/tweet?text=Just%20joined%20@Raven_Rush1!%20⚡️%20Daily%20check-ins,%20boosts%20and%20fun%20quests%20to%20earn%20points%20and%20climb%20the%20leaderboard!%20🏆%20👉%20Come%20play%20with%20me%20and%20win%20rewards:%20https%3A%2F%2Fraven-rush.org%2Fmain-quest",
   color: "bg-blue-500",
   icon: "📣" },
-  { id: "like_tweet", label: "Like our Tweet", url: "https://x.com/raven_rush1/status/1945814299357655137", color: "bg-pink-600", icon: "❤️" },
-  { id: "retweet", label: "Retweet", url: "https://x.com/raven_rush1/status/1945814299357655137", color: "bg-green-600", icon: "🔁" },
-  { id: "comment", label: "Comment on Tweet", url: "https://x.com/raven_rush1/status/1945814299357655137", color: "bg-yellow-500", icon: "💬" }
+  { id: "like_tweet", label: "Like our Tweet", url: "https://x.com/raven_rush1/status/1947734310653440358", color: "bg-pink-600", icon: "❤️" },
+  { id: "retweet", label: "Retweet", url: "https://x.com/raven_rush1/status/1947734310653440358", color: "bg-green-600", icon: "🔁" },
+  { id: "comment", label: "Comment on Tweet", url: "https://x.com/raven_rush1/status/1947734310653440358", color: "bg-yellow-500", icon: "💬" }
 ];
 
 const SocialQuestSection: React.FC<Props> = ({ address, refreshLeaderboard, setPoints }) => {
