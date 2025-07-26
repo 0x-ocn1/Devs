@@ -38,7 +38,7 @@ const sections = [
   {
     title: "Join our Community",
     description:
-      "More than a game, it’s a community. 🏁 Share race clips, win giveaways, vote on new features, and join weekly events. Whether you race, create, or vibe, there’s a place for you. 🚀",
+      "More than a game, it is a community. 🏁 Share race clips, win giveaways, vote on new features, and join weekly events. Whether you race, create, or vibe, there is a place for you. 🚀",
     image: "https://i.postimg.cc/1zq0hYZX/65601744-ff2a-4cd5-868e-4d0d1e88c482.png",
   },
 ];
@@ -48,60 +48,181 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen font-sans bg-black text-white">
       <Navbar />
 
-      <main className="flex-1 px-4 py-14 bg-black/90 backdrop-blur-md">
-        {/* Hero Section */}
-        <section className="flex flex-col items-center text-center mb-20">
-          <motion.img
-            src="https://i.postimg.cc/05YvjHFS/Raven-Rush-logo-2-0.png"
-            alt="Raven Rush Logo"
-            className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-purple-600 shadow-[0_0_20px_rgba(168,85,247,0.8)]"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-          />
-          <motion.h1
-            className="text-4xl md:text-6xl font-extrabold text-purple-400 mt-6"
-            initial="hidden"
-            animate="visible"
-            variants={fadeIn}
-            transition={{ duration: 0.8 }}
-          >
-            Race. Stake. Conquer.
-          </motion.h1>
-          <p className="mt-4 text-lg max-w-xl text-gray-300">
-            Raven Rush is a decentralized PvP racing game. Compete for glory, trade in-game assets, and own your progress.
-          </p>
-        </section>
+<main className="flex-1 px-4 py-14 bg-black/90 backdrop-blur-md">
 
-        {/* Animated Overview Sections */}
-        <div className="space-y-32 max-w-7xl mx-auto px-4">
-          {sections.map((sec, idx) => (
-            <motion.section
-              key={idx}
-              className="grid md:grid-cols-2 gap-12 items-center"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={fadeIn}
-              transition={{ duration: 0.6 + idx * 0.15 }}
-            >
-              <div className={`${idx % 2 === 1 ? 'md:order-2' : ''}`}>
-                <img
-                  src={sec.image}
-                  alt={sec.title}
-                  className="rounded-3xl shadow-2xl w-full object-cover"
-                />
-              </div>
-              <div className="text-left">
-                <h2 className="text-4xl font-bold text-purple-400 mb-4">{sec.title}</h2>
-                <p className="text-gray-300 text-lg leading-relaxed max-w-prose">
-                  {sec.description}
-                </p>
-              </div>
-            </motion.section>
-          ))}
-        </div>
+  {/* 🌌 Fullscreen Background Image Layer */}
+  <div
+    className="absolute inset-0 -z-10 bg-no-repeat bg-cover bg-center opacity-20 pointer-events-none"
+    style={{
+      backgroundImage: `url('https://i.postimg.cc/GhTCRtCH/Raven-1.png')`,
+    }}
+  />
 
+  {/* 🌌 Cinematic Preview */}
+  <section className="relative bg-black border-b border-purple-800 py-10 px-4 md:px-16 text-center">
+    <motion.p
+      className="text-purple-400 uppercase tracking-widest text-sm md:text-base mb-3"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      Enter the Race Before It Begins
+    </motion.p>
+    <motion.h2
+      className="text-2xl md:text-4xl font-extrabold text-white mb-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+    >
+      The Future of PvP Racing is On-Chain
+    </motion.h2>
+    <motion.p
+      className="text-gray-300 max-w-3xl mx-auto text-base md:text-lg"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.4 }}
+    >
+      Raven Rush is more than a game, it is a decentralized racing universe where every second, every upgrade, every decision matters. Are you ready to race for glory?
+    </motion.p>
+  </section>
+
+  {/* 👥 Social Proof Strip */}
+  <section className="bg-black border-b border-purple-800 py-6 px-4 md:px-16 text-center">
+    <motion.p
+      className="text-gray-400 text-sm md:text-base"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      🔥 Over <span className="text-purple-400 font-semibold">1,000</span> early signups • Backed by top builders in Web3 • 
+    </motion.p>
+  </section>
+
+  {/* ⚙️ Feature Highlights */}
+  <section className="bg-black border-b border-purple-800 py-6 px-4 md:px-16">
+    <div className="flex flex-wrap justify-center gap-4 text-purple-300 text-sm font-medium">
+      {[
+        "Skill-Based Racing",
+        "On-Chain Leaderboards",
+        "NFT Upgrades",
+        "Zero RNG",
+        "PvP Earnings",
+        "Cross-Chain Ready"
+      ].map((item, i) => (
+        <motion.div
+          key={i}
+          className="px-4 py-2 bg-purple-900/20 rounded-full border border-purple-600 shadow-sm hover:shadow-purple-700 transition"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 * i }}
+        >
+          {item}
+        </motion.div>
+      ))}
+    </div>
+  </section>
+
+  {/* 🔥 Raven Rush Overview Block */}
+<section className="relative z-10 px-4 md:px-16 py-28 bg-black/90 text-white text-center border-y border-purple-700">
+  <motion.h2
+    className="text-5xl md:text-6xl font-extrabold text-purple-400 mb-6 tracking-tight"
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6 }}
+  >
+    Race. Earn. Dominate.
+  </motion.h2>
+  <motion.p
+    className="text-gray-400 max-w-2xl mx-auto text-lg md:text-xl mb-12"
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5, delay: 0.2 }}
+  >
+    Skill meets speed in Raven Rush, a next-gen PvP racing world where your wins are truly yours.
+  </motion.p>
+
+ {/* 📍 Place this just before the “About Raven Rush” block */}
+<section className="mt-24 mb-12 text-center">
+  <h3 className="text-lg text-purple-300 font-semibold mb-6">
+    Start your journey with Raven Rush:
+  </h3>
+  <div className="flex flex-wrap justify-center gap-4">
+    {/* Primary CTA */}
+    <a
+      href="https://raven-rush.org/claim-wRaven"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-full shadow-md transition-transform duration-200 hover:scale-105"
+    >
+      🚀 Join Pre-Testnet
+    </a>
+
+    {/* Secondary - Outline style */}
+    <a
+      href="https://guild.xyz/raven-rush"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="px-6 py-3 border border-purple-500 text-purple-300 hover:bg-purple-600 hover:text-white font-semibold rounded-full transition duration-200 hover:scale-105"
+    >
+      🤝 Join Guild
+    </a>
+
+    {/* Secondary - Outline style */}
+    <a
+      href="https://raven-rush.gitbook.io/docs"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="px-6 py-3 border border-purple-500 text-purple-300 hover:bg-purple-600 hover:text-white font-semibold rounded-full transition duration-200 hover:scale-105"
+    >
+      📘 Explore Our Docs
+    </a>
+  </div>
+</section>
+
+
+  <div className="grid md:grid-cols-2 gap-12 text-left max-w-5xl mx-auto">
+    {[
+      {
+        title: "About Raven Rush",
+        desc: "Raven Rush is a fast-paced, skill-based PvP racing game. Blaze through futuristic tracks, outsmart rivals, and earn real rewards. Every race is a step toward building your on-chain legacy.",
+      },
+      {
+        title: "Why Play Raven Rush?",
+        desc: "No randomness, no gimmicks. Just pure skill. Practice in free mode, stake tokens in PvP, or conquer weekly leaderboards. Win, earn, and evolve.",
+      },
+      {
+        title: "Beta Pass NFT",
+        desc: "Mint your Beta Pass to access early testnet gameplay. Unlock exclusive perks, early features, and a permanent spot in the Raven Rush Hall of Fame.",
+      },
+      {
+        title: "Leaderboard & Genesis Rewards",
+        desc: "Complete quests and dominate the leaderboards to secure Genesis rewards, $Raven airdrops, and legendary in-game assets.",
+      },
+      {
+        title: "Join Our Community",
+        desc: "Raven Rush is not just a game, it's a movement. Share race clips, join AMAs, vote on features, and shape the future. All racers welcome. 🏁",
+      },
+      {
+        title: "A Living, Evolving Game World",
+        desc: "Raven Rush is more than a launch, it is a living ecosystem. Community proposals, new track releases, NFT upgrades, and balance patches will shape the game over time. Be part of the future by helping build it.",
+      },
+    ].map((item, i) => (
+      <motion.div
+        key={i}
+        className="bg-black/60 p-6 border border-purple-700 rounded-xl shadow-md hover:shadow-purple-600/40 transition"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: i * 0.15, duration: 0.5 }}
+      >
+        <h3 className="text-xl font-bold text-purple-300 mb-3">{item.title}</h3>
+        <p className="text-gray-300 text-sm leading-relaxed">{item.desc}</p>
+      </motion.div>
+    ))}
+  </div>
+</section>
 
          {/* wRaven Token Section */}
 <section className="mt-32 max-w-4xl mx-auto px-4 text-center">
