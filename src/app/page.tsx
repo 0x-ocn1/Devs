@@ -24,9 +24,9 @@ const sections = [
     image: "https://i.postimg.cc/JnZ73jCG/Race-to-Glory.png",
   },
   {
-    title: "Beta Pass NFT",
+    title: "Modular. Upgradable. Yours",
     description:
-      "Mint your Beta Pass NFT to access Raven Rush testnet early. Play before launch, unlock exclusive in-game rewards, and claim special perks reserved for early supporters.",
+      "From garage customization to racing gear, Raven Rush gives you full ownership of your in-game assets. Upgrade, trade, or flex them — they are on-chain and interoperable. Your progress is stored forever, your identity travels with you.",
     image: "https://i.postimg.cc/tJFyK6X8/Raven-Rush-Beta-Pass-Resized.png",
   },
   {
