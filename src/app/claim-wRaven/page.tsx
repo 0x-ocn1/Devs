@@ -124,28 +124,90 @@ export default function ClaimWRavenPage() {
 
       <main className="flex-1 px-6 pt-24 flex flex-col items-center relative overflow-hidden">
         <motion.h1
-          className="text-5xl md:text-6xl font-black text-purple-400 mb-4 drop-shadow"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          Claim Your wRaven Tokens
-        </motion.h1>
+  className="text-3xl sm:text-4xl md:text-5xl font-black text-purple-400 mb-4 drop-shadow text-center"
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+>
+  Claim wRaven Tokens
+</motion.h1>
 
-        <p className="text-center text-base md:text-lg text-purple-100 mb-8 leading-relaxed bg-purple-800/20 p-4 rounded-xl">
-          🪂 Connect your wallet, check if you’re eligible, and claim wRaven! Eligibility is based on your activity on Arbitrum, Polygon, BNB, and Ethereum — no approvals needed, just one interaction. wRaven will be redeemable for $RAVEN at TGE <br />
-          Progress: <span className="text-yellow-300 font-semibold">{Math.floor(progress)}%</span>
-        </p>
 
-        {isConnected ? (
+          <div className="text-center text-base md:text-lg text-purple-100 mb-6 leading-relaxed bg-gradient-to-br from-purple-900/60 to-black/40 p-6 rounded-xl shadow-xl backdrop-blur-sm border border-purple-700">
+    🪂 <strong className="text-yellow-300">Claim your wRaven</strong> based on your wallet's activity on Ethereum, Arbitrum, BNB, or Polygon. <br />
+    No approvals needed. Just connect, verify, and claim your tokens!<br />
+    <span className="text-sm text-purple-300 italic block mt-2">
+      wRaven will be redeemable for $RAVEN at TGE.
+    </span>
+  </div>
+  
+          {isConnected ? (
           <>
             <div className="text-sm text-white/90 mb-6 flex flex-wrap items-center gap-3 justify-center font-medium">
-              <span className="bg-black/50 px-3 py-1 rounded border border-purple-600">
-                <strong className="text-purple-300">Connected:</strong> {address?.slice(0, 6)}...{address?.slice(-4)}
-              </span>
-              <span className="bg-black/50 px-3 py-1 rounded border border-purple-600">
-                <strong className="text-purple-300">Network:</strong> {networkName}
-              </span>
+
+              <div className="bg-black/50 px-3 py-1 rounded border border-purple-600 flex items-center gap-2 hover:bg-purple-800 transition">
+  <strong className="text-purple-300">Wallet:</strong>
+  <span
+    className="cursor-pointer text-sm"
+    onClick={() => navigator.clipboard.writeText(address || "")}
+    title="Click to copy"
+  >
+    {address?.slice(0, 6)}...{address?.slice(-4)}
+  </span>
+</div>
+
+              <div className="relative group">
+  <button className="bg-black/50 px-3 py-1 rounded border border-purple-600 hover:bg-purple-800 transition">
+    <strong className="text-purple-300">Network:</strong> {networkName}
+  </button>
+  <div className="absolute hidden group-hover:block bg-black text-white border border-purple-700 rounded mt-2 z-10 w-48 p-2">
+    <button
+      className="block w-full text-left hover:text-purple-300 text-sm py-1"
+      onClick={() => {
+        if (window.ethereum?.request) {
+          window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x1" }],
+          });
+        } else {
+          alert("Ethereum provider not found.");
+        }
+      }}
+    >
+      Ethereum Mainnet
+    </button>
+    <button
+      className="block w-full text-left hover:text-purple-300 text-sm py-1"
+      onClick={() => {
+        if (window.ethereum?.request) {
+          window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0xa4b1" }],
+          });
+        } else {
+          alert("Ethereum provider not found.");
+        }
+      }}
+    >
+      Arbitrum
+    </button>
+    <button
+      className="block w-full text-left hover:text-purple-300 text-sm py-1"
+      onClick={() => {
+        if (window.ethereum?.request) {
+          window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x89" }],
+          });
+        } else {
+          alert("Ethereum provider not found.");
+        }
+      }}
+    >
+      Polygon
+    </button>
+  </div>
+</div>
               <button
                 onClick={() => disconnect()}
                 className="text-sm font-semibold text-red-400 underline hover:text-red-300"

@@ -16,13 +16,13 @@ const roadmap = [
   {
     title: 'Mission Launch',
     date: 'Q2 2025',
-    desc: 'Raven Rush project revealed and alpha whitelist.',
+    desc: 'Raven Rush project revealed and alpha whitelist. distribute 30k Beta Pass NFTs to early supporters.',
     icon: <FaRocket className="text-cyan-400 text-3xl" />,
   },
   {
     title: 'Beta Test Drive',
     date: 'Q3 2025',
-    desc: 'Mint Beta Pass NFTs. Early racing tournament and leaderboard system.',
+    desc: 'Game testnet launch, Early racing tournament and leaderboard system.',
     icon: <FaCogs className="text-indigo-400 text-3xl" />,
   },
   {
